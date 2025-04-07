@@ -81,7 +81,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Data will be injected here dynamically -->
+                    <!-- Example static data, replace with dynamic data -->
                     <tr>
                         <td>1</td>
                         <td>Movie Title 1</td>
@@ -89,7 +89,8 @@
                         <td>2023</td>
                         <td>Director 1</td>
                         <td>
-                            <button class="btn btn-warning btn-sm">Edit</button>
+                            <!-- Link to open the edit modal -->
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editMovieModal1">Edit</button>
                             <button class="btn btn-danger btn-sm">Delete</button>
                         </td>
                     </tr>
@@ -100,7 +101,8 @@
                         <td>2024</td>
                         <td>Director 2</td>
                         <td>
-                            <button class="btn btn-warning btn-sm">Edit</button>
+                            <!-- Link to open the edit modal -->
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editMovieModal2">Edit</button>
                             <button class="btn btn-danger btn-sm">Delete</button>
                         </td>
                     </tr>
@@ -111,7 +113,7 @@
         <!-- Content for Add Movie -->
         <div id="add-movie-content" class="content" style="display: none;">
             <h3>Add New Movie</h3>
-            <form action="/add_movie" method="POST">
+            <form action="/Movie_Project/Movie/add" method="POST">
                 <div class="mb-3">
                     <label for="title" class="form-label">Title</label>
                     <input type="text" class="form-control" id="title" name="title" required>

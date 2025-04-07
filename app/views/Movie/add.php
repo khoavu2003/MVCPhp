@@ -1,51 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <!-- Link to Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        /* Additional styling for the sidebar and main content */
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            background-color: #333;
-            color: white;
-            position: fixed;
-        }
-
-        .sidebar a {
-            color: white;
-            padding: 15px;
-            text-decoration: none;
-            display: block;
-        }
-
-        .sidebar a:hover {
-            background-color: #444;
-        }
-
-        .main-content {
-            margin-left: 260px;
-            padding: 20px;
-        }
-
-        .header {
-            background-color: #222;
-            color: white;
-            padding: 10px;
-        }
-
-        .table th, .table td {
-            text-align: center;
-        }
-    </style>
-</head>
-
 <form action="/Movie_Project/Movie/add" method="POST">
     <div class="mb-3">
         <label for="title" class="form-label">Title</label>
@@ -72,24 +24,32 @@
         <input type="text" class="form-control" id="bannerImage" name="bannerImage" required>
     </div>
 
-    <!-- Dropdown for Actor -->
+    <!-- Dropdown for Actor with collapse -->
     <div class="mb-3">
-        <label for="actors" class="form-label">Select Actors</label>
-        <select class="form-control" id="actors" name="actors[]" multiple required>
-            <?php foreach ($actors as $actor): ?>
-                <option value="<?php echo $actor['id']; ?>"><?php echo $actor['name']; ?></option>
-            <?php endforeach; ?>
-        </select>
+        <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#actorsCollapse" aria-expanded="false" aria-controls="actorsCollapse">
+            Select Actors
+        </button>
+        <div class="collapse" id="actorsCollapse">
+            <select class="form-control mt-2" id="actors" name="actors[]" multiple required>
+                <?php foreach ($actors as $actor): ?>
+                    <option value="<?php echo $actor['id']; ?>"><?php echo $actor['name']; ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
     </div>
 
-    <!-- Dropdown for Genre -->
+    <!-- Dropdown for Genre with collapse -->
     <div class="mb-3">
-        <label for="genres" class="form-label">Select Genres</label>
-        <select class="form-control" id="genres" name="genres[]" multiple required>
-            <?php foreach ($genres as $genre): ?>
-                <option value="<?php echo $genre['id']; ?>"><?php echo $genre['name']; ?></option>
-            <?php endforeach; ?>
-        </select>
+        <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#genresCollapse" aria-expanded="false" aria-controls="genresCollapse">
+            Select Genres
+        </button>
+        <div class="collapse" id="genresCollapse">
+            <select class="form-control mt-2" id="genres" name="genres[]" multiple required>
+                <?php foreach ($genres as $genre): ?>
+                    <option value="<?php echo $genre['id']; ?>"><?php echo $genre['name']; ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
     </div>
 
     <button type="submit" class="btn btn-primary">Add Movie</button>

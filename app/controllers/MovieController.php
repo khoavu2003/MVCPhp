@@ -57,9 +57,11 @@ class MovieController
         include 'app/views/Movie/manage_movie.php'; // Truyền dữ liệu qua view
     }
     // Tạo mới movie
-    public function add()
-    {
+    public function add() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Kiểm tra dữ liệu gửi lên từ form
+            var_dump($_POST); // Thêm dòng này để kiểm tra dữ liệu gửi lên
+            
             // Lấy thông tin từ form
             $data = [
                 'title' => $_POST['title'],
@@ -71,12 +73,15 @@ class MovieController
                 'actors' => isset($_POST['actors']) ? $_POST['actors'] : [],
                 'genres' => isset($_POST['genres']) ? $_POST['genres'] : []
             ];
-
+    
+            var_dump($data); // Kiểm tra dữ liệu sau khi xử lý
+            
+    
             // Gọi hàm addMovie để thực hiện thêm phim
-            if ($this->movie->create()) {
+            if ($this->movie->create($data)) {
                 // Lấy movie id mới tạo ra
-                $movieId = $this->movie->id;  // ID của movie mới tạo ra
-
+                $movieId = $this->movie->id;
+    
                 // Thêm MovieActor và MovieGenre
                 if (isset($data['actors']) && !empty($data['actors'])) {
                     foreach ($data['actors'] as $actorId) {
@@ -85,7 +90,7 @@ class MovieController
                         $this->movieActor->create();
                     }
                 }
-
+    
                 if (isset($data['genres']) && !empty($data['genres'])) {
                     foreach ($data['genres'] as $genreId) {
                         $this->movieGenre->movieId = $movieId;
@@ -93,21 +98,22 @@ class MovieController
                         $this->movieGenre->create();
                     }
                 }
-
+    
                 $_SESSION['success'] = 'Movie added successfully';
-                header('Location: /Movie_Project/Movie');
+                header('Location: /Movie_Project/Admin');
                 exit;
             } else {
                 $_SESSION['error'] = 'Error occurred while adding movie';
             }
         }
-
+    
         // Lấy danh sách actors và genres để hiển thị trong dropdown
         $actors = $this->actor->getAll()->fetchAll(PDO::FETCH_ASSOC);
         $genres = $this->genre->getAll()->fetchAll(PDO::FETCH_ASSOC);
-
+    
         include 'app/views/Movie/add.php';
     }
+    
     // Edit movie details
     public function update($movieId)
     {
