@@ -95,7 +95,7 @@ class MovieController
                 }
 
                 $_SESSION['success'] = 'Movie added successfully';
-                header('Location: /Movie_Project/Movie');
+                header('Location: /Movie_Project/Admin');
                 exit;
             } else {
                 $_SESSION['error'] = 'Error occurred while adding movie';
