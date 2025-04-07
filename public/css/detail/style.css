@@ -1,0 +1,53 @@
+body {
+    background-color: #111 !important;  /* Nền đen */
+    color: #fff;
+    min-height: 100vh; /* Đảm bảo phủ hết chiều cao trang */
+    margin: 0;
+    padding: 0;
+}
+
+
+.movie-info {
+    margin-top: 30px;
+    background-color: #111;
+    border-radius: 8px;
+}
+
+.movie-details h2 {
+    color: #f5c518;
+}
+
+.rating i {
+    color: #f5c518;
+}
+
+.share-buttons a {
+    color: #fff;
+    text-decoration: none;
+    margin-right: 10px;
+}
+
+.featured-videos {
+    margin-top: 40px;
+}
+
+.featured-videos h3 {
+    color: #f5c518;
+}
+
+.video-carousel {
+    display: flex;
+    gap: 20px;
+}
+
+.video-item img {
+    width: 300px;
+    height: auto;
+    border-radius: 5px;
+}
+
+.video-item p {
+    text-align: center;
+    color: #ddd;
+    margin-top: 5px;
+}

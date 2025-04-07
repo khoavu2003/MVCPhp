@@ -201,8 +201,21 @@ class MovieController
     {
         $this->movie->id = $movieId;
         $movie = $this->movie->getById();
-
-        include 'app/views/Movie/detail.php'; // Tạo view chi tiết để hiển thị
+    
+        if ($movie) {
+            // Lấy danh sách actors liên quan
+            $actors = $this->actor->getActorsByMovieId($movieId);
+    
+            // Lấy danh sách genres liên quan
+            $genres = $this->genre->getGenresByMovieId($movieId);
+    
+            // Truyền dữ liệu vào view
+            include 'app/views/Movie/detail.php';
+        } else {
+            $_SESSION['error'] = "Không tìm thấy phim với ID: $movieId";
+            header('Location:/Movie_Project/Movie');
+            exit();
+        }
     }
 
     // Xóa movie
