@@ -1,0 +1,45 @@
+/* style.css */
+
+/* Thiết lập font chữ và background */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Cải thiện độ rộng của container */
+.container {
+    max-width: 500px;
+}
+
+/* Card đăng ký */
+.card {
+    border-radius: 10px;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Nút đăng ký */
+.btn-primary {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+}
+
+/* Tùy chỉnh liên kết đăng nhập */
+.btn-link {
+    font-size: 14px;
+    color: #007bff;
+}
+
+/* Tùy chỉnh liên kết đăng nhập khi hover */
+.btn-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Thông báo lỗi và thành công */
+.alert-danger, .alert-success {
+    margin-top: 15px;
+}
