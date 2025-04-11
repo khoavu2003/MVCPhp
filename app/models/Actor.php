@@ -1,5 +1,4 @@
 <?php
-
 class Actor
 {
     private $conn;
@@ -46,24 +45,24 @@ class Actor
         }
         return null;
     }
-    // Phương thức trong MovieActor để lấy tất cả diễn viên của một bộ phim
+
+    // Phương thức để lấy tất cả diễn viên của một bộ phim
     public function getActorsByMovieId($movieId)
     {
         $query = "
-        SELECT a.id, a.name
-        FROM Actor a
-        JOIN MovieActor ma ON ma.actorId = a.id
-        WHERE ma.movieId = :movieId
+            SELECT a.id, a.name, a.profileImage
+            FROM " . $this->table_name . " a
+            JOIN MovieActor ma ON ma.actorId = a.id
+            WHERE ma.movieId = :movieId
         ";
 
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":movieId", $movieId);
+        $stmt->bindParam(":movieId", $movieId, PDO::PARAM_INT);
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    
     function create()
     {
         $query = "INSERT INTO " . $this->table_name . " 

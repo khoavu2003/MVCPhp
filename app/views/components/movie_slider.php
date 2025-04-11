@@ -6,10 +6,6 @@ if (!defined('BASE_URL')) {
 function renderMovieSlider($title, $movies, $sortByRating = false) {
     ?>
     <section class="movie-slider">
-        <div class="section-title">
-            <h2><?php echo htmlspecialchars($title); ?></h2>
-            <a href="#" class="see-all">See all</a>
-        </div>
         <div class="slider-container">
             <?php 
             if (!empty($movies)):
@@ -22,10 +18,14 @@ function renderMovieSlider($title, $movies, $sortByRating = false) {
                 }
                 foreach ($movies as $movie): 
                     $movieId = isset($movie['id']) ? htmlspecialchars($movie['id']) : '';
+                    $movieTitle = isset($movie['title']) ? htmlspecialchars($movie['title']) : 'Untitled';
+                    $poster = isset($movie['poster']) ? htmlspecialchars($movie['poster']) : 'https://via.placeholder.com/185x278';
+                    $rating = isset($movie['rating']) ? htmlspecialchars($movie['rating']) : '8.0';
+                    $releaseYear = isset($movie['releaseYear']) ? htmlspecialchars($movie['releaseYear']) : 'Unknown';
             ?>
             <div class="movie-card">
-                <img src="<?php echo !empty($movie['poster']) ? htmlspecialchars($movie['poster']) : 'https://via.placeholder.com/185x278'; ?>" 
-                     alt="<?php echo htmlspecialchars($movie['title']); ?>" 
+                <img src="<?php echo $poster; ?>" 
+                     alt="<?php echo $movieTitle; ?>" 
                      class="movie-poster" 
                      onclick="window.location.href='<?php echo BASE_URL; ?>/Movie/detail/<?php echo $movieId; ?>'">
                 <div class="card-actions">
@@ -36,10 +36,10 @@ function renderMovieSlider($title, $movies, $sortByRating = false) {
                 <div class="card-content">
                     <div class="card-rating">
                         <i class="fas fa-star"></i>
-                        <span><?php echo isset($movie['rating']) ? htmlspecialchars($movie['rating']) : '8.0'; ?></span>
+                        <span><?php echo $rating; ?></span>
                     </div>
-                    <h3 class="card-title"><?php echo htmlspecialchars($movie['title']); ?></h3>
-                    <div class="card-info"><?php echo htmlspecialchars($movie['releaseYear']); ?></div>
+                    <h3 class="card-title"><?php echo $movieTitle; ?></h3>
+                    <div class="card-info"><?php echo $releaseYear; ?></div>
                 </div>
             </div>
             <?php endforeach; else: ?>

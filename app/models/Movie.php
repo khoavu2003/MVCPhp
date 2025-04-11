@@ -29,7 +29,6 @@ class Movie
         return $stmt;
     }
 
-    // Lấy phim theo ID
     function getById()
     {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = :id";
@@ -42,15 +41,27 @@ class Movie
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row) {
-            $this->title = $row['title'];
-            $this->description = $row['description'];
-            $this->releaseYear = $row['releaseYear'];
-            $this->director = $row['director'];
-            $this->poster = $row['poster'];
-            $this->trailer = $row['trailer'];
-            $this->theatricalReleaseDate = $row['theatricalReleaseDate'];
-            $this->bannerImage = $row['bannerImage'];
-            return $row;
+            $this->title = isset($row['title']) ? $row['title'] : 'Untitled';
+            $this->description = isset($row['description']) ? $row['description'] : '';
+            $this->releaseYear = isset($row['releaseYear']) && $row['releaseYear'] > 0 ? $row['releaseYear'] : 'Unknown'; // Handle invalid years
+            $this->director = isset($row['director']) ? $row['director'] : '';
+            $this->poster = isset($row['poster']) ? $row['poster'] : '';
+            $this->trailer = isset($row['trailer']) ? $row['trailer'] : '';
+            $this->theatricalReleaseDate = isset($row['theatricalReleaseDate']) ? $row['theatricalReleaseDate'] : '';
+            $this->bannerImage = isset($row['bannerImage']) ? $row['bannerImage'] : '';
+
+            $movieData = [
+                'id' => $row['id'],
+                'title' => $this->title,
+                'description' => $this->description,
+                'releaseYear' => $this->releaseYear,
+                'director' => $this->director,
+                'poster' => $this->poster,
+                'trailer' => $this->trailer,
+                'theatricalReleaseDate' => $this->theatricalReleaseDate,
+                'bannerImage' => $this->bannerImage
+            ];
+            return $movieData;
         }
         return null;
     }
@@ -183,5 +194,32 @@ class Movie
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row['total_movies'];
+    }
+    public function getMoviesByActorId($actorId, $limit = null, $offset = null) {
+        $query = "SELECT m.* FROM Movie m
+                  JOIN MovieActor ma ON m.id = ma.movieId
+                  WHERE ma.actorId = :actorId
+                  AND m.releaseYear > 0  -- Add this condition to exclude invalid years
+                  ORDER BY m.releaseYear DESC";
+        
+        if ($limit !== null) {
+            $query .= " LIMIT :limit";
+        }
+        if ($offset !== null) {
+            $query .= " OFFSET :offset";
+        }
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':actorId', $actorId);
+        
+        if ($limit !== null) {
+            $stmt->bindParam(':limit', $limit, \PDO::PARAM_INT);
+        }
+        if ($offset !== null) {
+            $stmt->bindParam(':offset', $offset, \PDO::PARAM_INT);
+        }
+        
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }

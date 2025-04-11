@@ -3,11 +3,11 @@
     <?php 
     $upNextCount = 0;
     foreach ($movies as $index => $movie): 
-        if ($index === 0) continue; // skip featured
+        if ($index === 0) continue; 
         if ($upNextCount >= 3) break;
         $upNextCount++;
     ?>
-        <div class="d-flex mb-3 align-items-center">
+        <div class="d-flex mb-3 align-items-center pt-3">
             <div class="me-2 position-relative">
                 <img src="<?php echo $movie['poster'] ?? 'https://via.placeholder.com/60x90'; ?>" class="rounded" width="60" height="90" alt="<?php echo $movie['title']; ?>">
                 <div class="play-icon-overlay position-absolute top-50 start-50 translate-middle">

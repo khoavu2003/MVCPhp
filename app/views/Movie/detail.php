@@ -55,7 +55,7 @@ function getYouTubeEmbedUrl($url) {
                 <p><strong>Thể loại:</strong> <?php echo !empty($genres) ? implode(', ', array_map('htmlspecialchars', array_column($genres, 'name'))) : 'Chưa có thông tin'; ?></p>
                 <p><strong>Đạo diễn:</strong> <?php echo htmlspecialchars($movie['director']); ?></p>
                 <p><strong>Diễn viên:</strong> <?php echo !empty($actors) ? implode(', ', array_map('htmlspecialchars', array_column($actors, 'name'))) : 'Chưa có thông tin'; ?></p>
-                <p><strong>Năm phát hành:</strong> <?php echo htmlspecialchars($movie['releaseYear']); ?></p>
+                <p><strong>Năm phát hành:</strong> <?php echo !empty($movie['releaseYear']) ? htmlspecialchars($movie['releaseYear']) : 'Unknown'; ?>
                 <p><strong>Mô tả:</strong> <?php echo htmlspecialchars($movie['description']); ?></p>
 
                 <div class="rating text-warning mb-3">
