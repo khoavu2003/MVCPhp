@@ -1,5 +1,15 @@
 <?php
-    session_start();
+session_start();
+$showWatchlist = false;
+$watchlists = [];
+if (isset($_SESSION['user_id'])) {
+    $database = new Database();
+    $db = $database->getConnection();
+    $watchlistModel = new Watchlist($db);
+    $watchlistModel->userId = $_SESSION['user_id'];
+    $watchlists = $watchlistModel->getAll()->fetchAll(PDO::FETCH_ASSOC);
+    $showWatchlist = true;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -203,49 +213,78 @@
 
 <body>
     <?php include 'app/views/Utils/Navbar.php'; ?>
-    <div class="container">
-        <h1>Movie List</h1>
+    <div class="container" style="display: flex; gap: 20px;">
+        <!-- Cột chính: Danh sách phim -->
+        <div style="flex: 3;">
+            <h1>Movie List</h1>
 
-        <div class="movie-grid">
-            <?php if (!empty($movies)): ?>
-                <?php foreach ($movies as $movie): ?>
-                    <div class="movie-card">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvHAgGGoJOraKrkB_jUIt-81zqknRoPVnZNQ&s?>" alt="<?php echo $movie['title']; ?>" class="movie-poster" onclick="window.location.href='movie_detail.php?id=<?php echo $movie['id']; ?>'">
-                        <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <span><?php echo isset($movie['rating']) ? $movie['rating'] : 'N/A'; ?></span> <!-- Kiểm tra sự tồn tại của rating -->
-                        </div>
-
-                        <h3 onclick="window.location.href='movie_detail.php?id=<?php echo $movie['id']; ?>'"><?php echo $movie['title']; ?></h3>
-                        <button class="watchlist-btn" onclick="addToWatchlist(<?php echo $movie['id']; ?>)">+ Watchlist</button>
-                        <button onclick="window.location.href='movie_trailer.php?id=<?php echo $movie['id']; ?>'">
-                            <i class="fas fa-play"></i> Watch Trailer
-                        </button>
-
-                        <div class="watchlist-overlay">
-                            <div class="watchlist-options">
-                                <button onclick="addToWatchlist(<?php echo $movie['id']; ?>)">Add to Watchlist</button>
-                                <button onclick="createWatchlist(<?php echo $movie['id']; ?>)">Create New Watchlist</button>
+            <div class="movie-grid">
+                <?php if (!empty($movies)): ?>
+                    <?php foreach ($movies as $movie): ?>
+                        <div class="movie-card">
+                            <img src="<?php echo $movie['poster']; ?>" alt="<?php echo $movie['title']; ?>" class="movie-poster" onclick="window.location.href='movie_detail.php?id=<?php echo $movie['id']; ?>'">
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <span><?php echo isset($movie['rating']) ? $movie['rating'] : 'N/A'; ?></span>
+                            </div>
+                            <h3 onclick="window.location.href='movie_detail.php?id=<?php echo $movie['id']; ?>'"><?php echo $movie['title']; ?></h3>
+                            <button class="watchlist-btn" onclick="addToWatchlist(<?php echo $movie['id']; ?>)">+ Watchlist</button>
+                            <button onclick="window.location.href='movie_trailer.php?id=<?php echo $movie['id']; ?>'">
+                                <i class="fas fa-play"></i> Watch Trailer
+                            </button>
+                            <div class="watchlist-overlay">
+                                <div class="watchlist-options">
+                                    <button onclick="addToWatchlist(<?php echo $movie['id']; ?>)">Add to Watchlist</button>
+                                    <button onclick="createWatchlist(<?php echo $movie['id']; ?>)">Create New Watchlist</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p>No movies found.</p>
-            <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>No movies found.</p>
+                <?php endif; ?>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <?php if ($totalPages > 1): ?>
+                    <ul>
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li><a href="index.php?page=<?php echo $i; ?>" class="<?php echo ($i == $page) ? 'active' : ''; ?>"><?php echo $i; ?></a></li>
+                        <?php endfor; ?>
+                    </ul>
+                <?php endif; ?>
+            </div>
         </div>
 
-        <!-- Pagination -->
-        <div class="pagination">
-            <?php if ($totalPages > 1): ?>
-                <ul>
-                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                        <li><a href="index.php?page=<?php echo $i; ?>" class="<?php echo ($i == $page) ? 'active' : ''; ?>"><?php echo $i; ?></a></li>
-                    <?php endfor; ?>
-                </ul>
-            <?php endif; ?>
-        </div>
+        <!-- Cột phụ: Watchlist -->
+        <?php if ($showWatchlist): ?>
+            <div style="flex: 1; background-color: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <h2 style="font-size: 1.5em; margin-bottom: 20px;">My Watchlist</h2>
+                <?php if (!empty($watchlists)): ?>
+                    <?php foreach ($watchlists as $watchlist): ?>
+                        <div style="margin-bottom: 15px;">
+                            <h4 style="font-size: 1.2em;"><?php echo $watchlist['name']; ?></h4>
+                            <a href="/Movie_Project/Watchlist" style="color: #007bff; text-decoration: none;">View Details</a>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>No watchlists found. Create one now!</p>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
     </div>
+
+    <script>
+        function addToWatchlist(movieId) {
+            window.location.href = '/Movie_Project/Watchlist/addToWatchlist/' + movieId;
+        }
+
+        function createWatchlist(movieId) {
+            // Logic để tạo watchlist mới (có thể mở một modal để nhập tên watchlist)
+            alert('Feature to create new watchlist coming soon!');
+        }
+    </script>
 </body>
 
 </html>

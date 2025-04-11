@@ -6,6 +6,7 @@ include_once 'app/models/Actor.php';
 include_once 'app/models/MovieActor.php';
 include_once 'app/models/Genre.php';
 include_once 'app/models/MovieGenre.php';
+include_once 'app/models/Watchlist.php';
 
 class MovieController
 {
@@ -15,6 +16,7 @@ class MovieController
     private $movieActor;
     private $genre;
     private $movieGenre;
+    private $watchlist;
 
     public function __construct()
     {
@@ -25,6 +27,7 @@ class MovieController
         $this->movieActor = new MovieActor($this->db);
         $this->genre = new Genre($this->db);
         $this->movieGenre = new MovieGenre($this->db);
+        $this->watchlist = new Watchlist($this->db);
     }
 
     // Hiển thị danh sách phim
@@ -38,6 +41,16 @@ class MovieController
         $movies = $this->movie->getMoviesWithDetails($limit, $offset)->fetchAll(PDO::FETCH_ASSOC);
         $totalMovies = $this->movie->getTotalMovies();
         $totalPages = ceil($totalMovies / $limit);
+
+        // Lấy danh sách Watchlist của người dùng (nếu đã đăng nhập)
+        session_start();
+        $showWatchlist = false;
+        $watchlists = [];
+        if (isset($_SESSION['user_id'])) {
+            $this->watchlist->userId = $_SESSION['user_id'];
+            $watchlists = $this->watchlist->getAll()->fetchAll(PDO::FETCH_ASSOC);
+            $showWatchlist = true;
+        }
 
         include 'app/views/Movie/index.php'; // Tạo file view để hiển thị
     }
@@ -215,5 +228,48 @@ class MovieController
         } else {
             echo "Lỗi khi xóa movie.";
         }
+    }
+
+    // Tìm kiếm phim
+    public function search()
+    {
+        $query = isset($_GET['query']) ? trim($_GET['query']) : '';
+        if (empty($query)) {
+            $_SESSION['error'] = 'Please enter a search query.';
+            header('Location: /Movie_Project/Movie');
+            exit;
+        }
+
+        $limit = 12;
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $offset = ($page - 1) * $limit;
+
+        // Tìm kiếm phim theo tiêu đề
+        $stmt = $this->db->prepare("
+            SELECT m.*, 
+                   GROUP_CONCAT(DISTINCT g.name) AS genre_names, 
+                   GROUP_CONCAT(DISTINCT a.name) AS actor_names 
+            FROM Movie m
+            LEFT JOIN MovieGenre mg ON m.id = mg.movieId
+            LEFT JOIN Genre g ON mg.genreId = g.id
+            LEFT JOIN MovieActor ma ON m.id = ma.movieId
+            LEFT JOIN Actor a ON ma.actorId = a.id
+            WHERE m.title LIKE :query
+            GROUP BY m.id
+            LIMIT :limit OFFSET :offset
+        ");
+        $stmt->bindValue(':query', '%' . $query . '%');
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $totalStmt = $this->db->prepare("SELECT COUNT(*) as total FROM Movie WHERE title LIKE :query");
+        $totalStmt->bindValue(':query', '%' . $query . '%');
+        $totalStmt->execute();
+        $totalMovies = $totalStmt->fetch(PDO::FETCH_ASSOC)['total'];
+        $totalPages = ceil($totalMovies / $limit);
+
+        include 'app/views/Movie/index.php';
     }
 }

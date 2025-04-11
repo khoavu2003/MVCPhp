@@ -1,6 +1,7 @@
 <?php
 
-class Watchlist {
+class Watchlist
+{
     private $conn;
     private $table_name = "Watchlist";
 
@@ -9,14 +10,18 @@ class Watchlist {
     public $description;
     public $userId;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
 
-    // Lấy tất cả Watchlist
-    function getAll() {
-        $query = "SELECT * FROM " . $this->table_name;
+    // Lấy tất cả Watchlist của user
+    function getAll()
+    {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE userId = :userId";
         $stmt = $this->conn->prepare($query);
+        $this->userId = htmlspecialchars(strip_tags($this->userId));
+        $stmt->bindParam(":userId", $this->userId);
         $stmt->execute();
         return $stmt;
     }
@@ -25,13 +30,14 @@ class Watchlist {
     function getById() {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = :id";
         $stmt = $this->conn->prepare($query);
-
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $stmt->bindParam(":id", $this->id);
-
+    
+        // Ép kiểu id thành số nguyên
+        $this->id = (int) $this->id;
+        $stmt->bindParam(":id", $this->id, PDO::PARAM_INT); // Chỉ định kiểu dữ liệu là INT
+    
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    
         if ($row) {
             $this->name = $row['name'];
             $this->description = $row['description'];
@@ -41,14 +47,65 @@ class Watchlist {
         return null;
     }
 
+    // Lấy hoặc tạo Default Watchlist cho user
+    function getOrCreateDefault()
+    {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE userId = :userId AND name = 'Default Watchlist'";
+        $stmt = $this->conn->prepare($query);
+        $this->userId = htmlspecialchars(strip_tags($this->userId));
+        $stmt->bindParam(":userId", $this->userId);
+        $stmt->execute();
+
+        $defaultWatchlist = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($defaultWatchlist) {
+            $this->id = $defaultWatchlist['id'];
+            $this->name = $defaultWatchlist['name'];
+            $this->description = $defaultWatchlist['description'];
+            return $defaultWatchlist['id'];
+        }
+
+        $this->name = 'Default Watchlist';
+        $this->description = 'Danh sách phim mặc định.';
+        $this->create();
+        return $this->conn->lastInsertId();
+    }
+
+    // Lấy danh sách phim trong Watchlist
+    function getMovies()
+    {
+        $query = "
+            SELECT m.* 
+            FROM Movie m
+            JOIN WatchlistMovies wm ON m.id = wm.movieId
+            WHERE wm.watchlistId = :watchlistId
+        ";
+        $stmt = $this->conn->prepare($query);
+        $this->id = htmlspecialchars(strip_tags($this->id));
+        $stmt->bindParam(":watchlistId", $this->id);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // Tạo mới Watchlist
-    function create() {
+    function create()
+    {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE userId = :userId AND name = :name";
+        $stmt = $this->conn->prepare($query);
+        $this->userId = htmlspecialchars(strip_tags($this->userId));
+        $this->name = htmlspecialchars(strip_tags($this->name));
+        $stmt->bindParam(":userId", $this->userId);
+        $stmt->bindParam(":name", $this->name);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            return false;
+        }
+
         $query = "INSERT INTO " . $this->table_name . " SET name=:name, description=:description, userId=:userId";
         $stmt = $this->conn->prepare($query);
 
-        $this->name = htmlspecialchars(strip_tags($this->name));
         $this->description = htmlspecialchars(strip_tags($this->description));
-        $this->userId = htmlspecialchars(strip_tags($this->userId));
 
         $stmt->bindParam(":name", $this->name);
         $stmt->bindParam(":description", $this->description);
@@ -58,14 +115,26 @@ class Watchlist {
     }
 
     // Cập nhật Watchlist
-    function update() {
+    function update()
+    {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE userId = :userId AND name = :name AND id != :id";
+        $stmt = $this->conn->prepare($query);
+        $this->userId = htmlspecialchars(strip_tags($this->userId));
+        $this->name = htmlspecialchars(strip_tags($this->name));
+        $this->id = htmlspecialchars(strip_tags($this->id));
+        $stmt->bindParam(":userId", $this->userId);
+        $stmt->bindParam(":name", $this->name);
+        $stmt->bindParam(":id", $this->id);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            return false;
+        }
+
         $query = "UPDATE " . $this->table_name . " SET name=:name, description=:description, userId=:userId WHERE id=:id";
         $stmt = $this->conn->prepare($query);
 
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $this->name = htmlspecialchars(strip_tags($this->name));
         $this->description = htmlspecialchars(strip_tags($this->description));
-        $this->userId = htmlspecialchars(strip_tags($this->userId));
 
         $stmt->bindParam(":id", $this->id);
         $stmt->bindParam(":name", $this->name);
@@ -76,7 +145,8 @@ class Watchlist {
     }
 
     // Xóa Watchlist
-    function delete() {
+    function delete()
+    {
         $query = "DELETE FROM " . $this->table_name . " WHERE id=:id";
         $stmt = $this->conn->prepare($query);
 
