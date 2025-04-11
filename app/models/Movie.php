@@ -29,6 +29,7 @@ class Movie
         return $stmt;
     }
 
+    // Lấy phim theo ID
     function getById()
     {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = :id";
@@ -41,89 +42,17 @@ class Movie
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row) {
-            $this->title = isset($row['title']) ? $row['title'] : 'Untitled';
-            $this->description = isset($row['description']) ? $row['description'] : '';
-            $this->releaseYear = isset($row['releaseYear']) && $row['releaseYear'] > 0 ? $row['releaseYear'] : 'Unknown'; // Handle invalid years
-            $this->director = isset($row['director']) ? $row['director'] : '';
-            $this->poster = isset($row['poster']) ? $row['poster'] : '';
-            $this->trailer = isset($row['trailer']) ? $row['trailer'] : '';
-            $this->theatricalReleaseDate = isset($row['theatricalReleaseDate']) ? $row['theatricalReleaseDate'] : '';
-            $this->bannerImage = isset($row['bannerImage']) ? $row['bannerImage'] : '';
-
-            $movieData = [
-                'id' => $row['id'],
-                'title' => $this->title,
-                'description' => $this->description,
-                'releaseYear' => $this->releaseYear,
-                'director' => $this->director,
-                'poster' => $this->poster,
-                'trailer' => $this->trailer,
-                'theatricalReleaseDate' => $this->theatricalReleaseDate,
-                'bannerImage' => $this->bannerImage
-            ];
-            return $movieData;
+            $this->title = $row['title'];
+            $this->description = $row['description'];
+            $this->releaseYear = $row['releaseYear'];
+            $this->director = $row['director'];
+            $this->poster = $row['poster'];
+            $this->trailer = $row['trailer'];
+            $this->theatricalReleaseDate = $row['theatricalReleaseDate'];
+            $this->bannerImage = $row['bannerImage'];
+            return $row;
         }
         return null;
-    }
-
-    // Lấy đánh giá trung bình của phim
-    public function getAverageRating($movieId)
-    {
-        $query = "SELECT AVG(rating) as average, COUNT(*) as count 
-                  FROM ratings 
-                  WHERE movieId = :movieId";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":movieId", $movieId);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return [
-            'average' => $row['average'] ? number_format($row['average'], 1) : 0.0,
-            'count' => $row['count']
-        ];
-    }
-
-    // Lấy đánh giá của người dùng hiện tại
-    public function getUserRating($movieId, $userId)
-    {
-        $query = "SELECT rating 
-                  FROM ratings 
-                  WHERE movieId = :movieId AND userId = :userId";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":movieId", $movieId);
-        $stmt->bindParam(":userId", $userId);
-        $stmt->execute();
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $row ? $row['rating'] : 0;
-    }
-    
-    // Lưu hoặc cập nhật đánh giá của người dùng
-    public function rateMovie($movieId, $userId, $rating)
-    {
-        // Kiểm tra xem người dùng đã đánh giá phim này chưa
-        $query = "SELECT id FROM ratings WHERE movieId = :movieId AND userId = :userId";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":movieId", $movieId);
-        $stmt->bindParam(":userId", $userId);
-        $stmt->execute();
-
-        if ($stmt->rowCount() > 0) {
-            // Nếu đã có đánh giá, cập nhật
-            $query = "UPDATE ratings SET rating = :rating, createdAt = NOW() 
-                      WHERE movieId = :movieId AND userId = :userId";
-        } else {
-            // Nếu chưa có, thêm mới
-            $query = "INSERT INTO ratings (movieId, userId, rating, createdAt) 
-                      VALUES (:movieId, :userId, :rating, NOW())";
-        }
-
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":movieId", $movieId);
-        $stmt->bindParam(":userId", $userId);
-        $stmt->bindParam(":rating", $rating);
-
-        return $stmt->execute();
     }
 
     // Tạo phim mới
@@ -154,71 +83,78 @@ class Movie
 
     // Tạo mới movie
     public function create($data)
-    {
-        // Chuẩn bị câu lệnh SQL
-        $query = "INSERT INTO " . $this->table_name . " 
+{
+    // Prepare the SQL query to insert the movie
+    $query = "INSERT INTO " . $this->table_name . " 
               SET title=:title, description=:description, releaseYear=:releaseYear, 
-                  director=:director, poster=:poster, bannerImage=:bannerImage";
+                  director=:director, poster=:poster, bannerImage=:bannerImage, 
+                  trailer=:trailer, theatricalReleaseDate=:theatricalReleaseDate";
 
-        $stmt = $this->conn->prepare($query);
+    $stmt = $this->conn->prepare($query);
 
-        // Xử lý dữ liệu
-        $this->title = htmlspecialchars(strip_tags($data['title']));
-        $this->description = htmlspecialchars(strip_tags($data['description']));
-        $this->releaseYear = htmlspecialchars(strip_tags($data['releaseYear']));
-        $this->director = htmlspecialchars(strip_tags($data['director']));
-        $this->poster = htmlspecialchars(strip_tags($data['poster']));
-        $this->bannerImage = htmlspecialchars(strip_tags($data['bannerImage']));
+    // Sanitize the data
+    $this->title = htmlspecialchars(strip_tags($data['title']));
+    $this->description = htmlspecialchars(strip_tags($data['description']));
+    $this->releaseYear = htmlspecialchars(strip_tags($data['releaseYear']));
+    $this->director = htmlspecialchars(strip_tags($data['director']));
+    $this->poster = htmlspecialchars(strip_tags($data['poster']));
+    $this->bannerImage = htmlspecialchars(strip_tags($data['bannerImage']));
+    $this->trailer = htmlspecialchars(strip_tags($data['trailer']));  // Sanitize trailer
+    $this->theatricalReleaseDate = htmlspecialchars(strip_tags($data['theatricalReleaseDate']));  // Sanitize theatricalReleaseDate
 
-        // Bind parameters
-        $stmt->bindParam(":title", $this->title);
-        $stmt->bindParam(":description", $this->description);
-        $stmt->bindParam(":releaseYear", $this->releaseYear);
-        $stmt->bindParam(":director", $this->director);
-        $stmt->bindParam(":poster", $this->poster);
-        $stmt->bindParam(":bannerImage", $this->bannerImage);
+    // Bind parameters
+    $stmt->bindParam(":title", $this->title);
+    $stmt->bindParam(":description", $this->description);
+    $stmt->bindParam(":releaseYear", $this->releaseYear);
+    $stmt->bindParam(":director", $this->director);
+    $stmt->bindParam(":poster", $this->poster);
+    $stmt->bindParam(":bannerImage", $this->bannerImage);
+    $stmt->bindParam(":trailer", $this->trailer);  // Bind trailer
+    $stmt->bindParam(":theatricalReleaseDate", $this->theatricalReleaseDate);  // Bind theatricalReleaseDate
 
-        // Thực thi câu lệnh
-        if ($stmt->execute()) {
-            $this->id = $this->conn->lastInsertId(); // Lấy ID của movie vừa chèn
-            return true;
-        }
-
-        return false;
+    // Execute the query
+    if ($stmt->execute()) {
+        $this->id = $this->conn->lastInsertId(); // Get the ID of the newly inserted movie
+        return true;
     }
+
+    return false;
+}
+
+
 
     // Cập nhật phim
-    function update()
-    {
-        $query = "UPDATE " . $this->table_name . " 
-                  SET title=:title, description=:description, releaseYear=:releaseYear, 
-                      director=:director, poster=:poster, trailer=:trailer, 
-                      theatricalReleaseDate=:theatricalReleaseDate, bannerImage=:bannerImage 
-                  WHERE id=:id";
-        $stmt = $this->conn->prepare($query);
+    public function update($data)
+{
+    // Cập nhật thông tin movie
+    $query = "UPDATE " . $this->table_name . " 
+              SET title=:title, description=:description, releaseYear=:releaseYear, 
+                  director=:director, poster=:poster, bannerImage=:bannerImage
+              WHERE id=:id";
 
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $this->title = htmlspecialchars(strip_tags($this->title));
-        $this->description = htmlspecialchars(strip_tags($this->description));
-        $this->releaseYear = htmlspecialchars(strip_tags($this->releaseYear));
-        $this->director = htmlspecialchars(strip_tags($this->director));
-        $this->poster = htmlspecialchars(strip_tags($this->poster));
-        $this->trailer = htmlspecialchars(strip_tags($this->trailer));
-        $this->theatricalReleaseDate = htmlspecialchars(strip_tags($this->theatricalReleaseDate));
-        $this->bannerImage = htmlspecialchars(strip_tags($this->bannerImage));
+    $stmt = $this->conn->prepare($query);
 
-        $stmt->bindParam(":id", $this->id);
-        $stmt->bindParam(":title", $this->title);
-        $stmt->bindParam(":description", $this->description);
-        $stmt->bindParam(":releaseYear", $this->releaseYear);
-        $stmt->bindParam(":director", $this->director);
-        $stmt->bindParam(":poster", $this->poster);
-        $stmt->bindParam(":trailer", $this->trailer);
-        $stmt->bindParam(":theatricalReleaseDate", $this->theatricalReleaseDate);
-        $stmt->bindParam(":bannerImage", $this->bannerImage);
+    // Lấy các giá trị từ data
+    $this->title = htmlspecialchars(strip_tags($data['title']));
+    $this->description = htmlspecialchars(strip_tags($data['description']));
+    $this->releaseYear = htmlspecialchars(strip_tags($data['releaseYear']));
+    $this->director = htmlspecialchars(strip_tags($data['director']));
+    $this->poster = htmlspecialchars(strip_tags($data['poster']));
+    $this->bannerImage = htmlspecialchars(strip_tags($data['bannerImage']));
+    
+    // Bind parameters
+    $stmt->bindParam(":id", $this->id);
+    $stmt->bindParam(":title", $this->title);
+    $stmt->bindParam(":description", $this->description);
+    $stmt->bindParam(":releaseYear", $this->releaseYear);
+    $stmt->bindParam(":director", $this->director);
+    $stmt->bindParam(":poster", $this->poster);
+    $stmt->bindParam(":bannerImage", $this->bannerImage);
 
-        return $stmt->execute();
-    }
+    // Thực hiện câu lệnh SQL
+    return $stmt->execute();
+}
+
 
     // Xóa phim
     function delete()
@@ -253,32 +189,5 @@ class Movie
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row['total_movies'];
-    }
-    public function getMoviesByActorId($actorId, $limit = null, $offset = null) {
-        $query = "SELECT m.* FROM Movie m
-                  JOIN MovieActor ma ON m.id = ma.movieId
-                  WHERE ma.actorId = :actorId
-                  AND m.releaseYear > 0  -- Add this condition to exclude invalid years
-                  ORDER BY m.releaseYear DESC";
-        
-        if ($limit !== null) {
-            $query .= " LIMIT :limit";
-        }
-        if ($offset !== null) {
-            $query .= " OFFSET :offset";
-        }
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':actorId', $actorId);
-        
-        if ($limit !== null) {
-            $stmt->bindParam(':limit', $limit, \PDO::PARAM_INT);
-        }
-        if ($offset !== null) {
-            $stmt->bindParam(':offset', $offset, \PDO::PARAM_INT);
-        }
-        
-        $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }

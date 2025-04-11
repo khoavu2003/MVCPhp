@@ -1,26 +1,30 @@
 <?php
 
-class Genre {
+class Genre
+{
     private $conn;
     private $table_name = "Genre";
 
     public $id;
     public $name;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
 
-    // Lấy tất cả thể loại
-    function getAll() {
+    // Get all genres
+    function getAll()
+    {
         $query = "SELECT * FROM " . $this->table_name;
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;
     }
 
-    // Lấy thể loại theo ID
-    function getById() {
+    // Get genre by ID
+    function getById()
+    {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = :id";
         $stmt = $this->conn->prepare($query);
 
@@ -37,30 +41,50 @@ class Genre {
         return null;
     }
 
-    // Tạo thể loại mới
-    function create() {
+    // Create a new genre
+    function create($data)
+    {
         $query = "INSERT INTO " . $this->table_name . " SET name=:name";
         $stmt = $this->conn->prepare($query);
 
-        $this->name = htmlspecialchars(strip_tags($this->name));
+        // Sanitize the data
+        $this->name = htmlspecialchars(strip_tags($data['name']));
+
+        // Bind parameters
         $stmt->bindParam(":name", $this->name);
 
         return $stmt->execute();
     }
 
-    // Cập nhật thể loại
-    function update() {
+    // Update an existing genre
+    function update($data)
+    {
         $query = "UPDATE " . $this->table_name . " SET name=:name WHERE id=:id";
         $stmt = $this->conn->prepare($query);
 
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $this->name = htmlspecialchars(strip_tags($this->name));
+        // Sanitize and bind the data
+        $this->id = htmlspecialchars(strip_tags($data['id']));
+        $this->name = htmlspecialchars(strip_tags($data['name']));
 
         $stmt->bindParam(":id", $this->id);
         $stmt->bindParam(":name", $this->name);
 
         return $stmt->execute();
     }
+
+    // Delete a genre
+    function delete()
+    {
+        $query = "DELETE FROM " . $this->table_name . " WHERE id=:id";
+        $stmt = $this->conn->prepare($query);
+
+        $this->id = htmlspecialchars(strip_tags($this->id));
+        $stmt->bindParam(":id", $this->id);
+
+        return $stmt->execute();
+    }
+
+    // Get genres by movie ID
     public function getGenresByMovieId($movieId)
     {
         $query = "
@@ -75,17 +99,6 @@ class Genre {
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    // Xóa thể loại
-    function delete() {
-        $query = "DELETE FROM " . $this->table_name . " WHERE id=:id";
-        $stmt = $this->conn->prepare($query);
-
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $stmt->bindParam(":id", $this->id);
-
-        return $stmt->execute();
     }
 }
 ?>

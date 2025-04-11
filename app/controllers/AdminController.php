@@ -5,6 +5,7 @@ include_once 'app/models/Actor.php';
 include_once 'app/models/MovieActor.php';
 include_once 'app/models/Genre.php';
 include_once 'app/models/MovieGenre.php';
+include_once 'app/middleware/AuthMiddleware.php';
 class AdminController
 {
     private $db;
@@ -16,11 +17,13 @@ class AdminController
 
     function index()
     {
+        AuthMiddleware::checkAdmin();
         include "app/views/Admin/index.php";
     }
     function manageMovie()
     {
-        include "app/views/Admin/manage_movie.php";
+        AuthMiddleware::checkAdmin();
+        include "app/views/Movie/manage_movie.php";
     }
     public function add()
     {
