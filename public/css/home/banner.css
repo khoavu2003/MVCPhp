@@ -1,6 +1,7 @@
 .banner {
     display: flex;
     justify-content: space-between;
+    padding-top: 30px;
 }
 
 .carousel-container {
@@ -20,6 +21,7 @@
 .up-next-box img {
     object-fit: cover;
     border-radius: 8px;
+    padding-top: 30px;
 }
 
 .play-icon-overlay i {
