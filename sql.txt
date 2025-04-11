@@ -95,3 +95,14 @@ CREATE TABLE MovieComments (
     FOREIGN KEY (movieId) REFERENCES Movie(id) ON DELETE CASCADE,
     FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE
 );
+
+CREATE TABLE ratings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    movieId INT NOT NULL,
+    userId INT NOT NULL,
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 10),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (movieId) REFERENCES Movie(id),
+    FOREIGN KEY (userId) REFERENCES User(id),
+    UNIQUE (movieId, userId)
+);

@@ -55,6 +55,66 @@ class Movie
         return null;
     }
 
+    // Lấy đánh giá trung bình của phim
+    public function getAverageRating($movieId)
+    {
+        $query = "SELECT AVG(rating) as average, COUNT(*) as count 
+                  FROM ratings 
+                  WHERE movieId = :movieId";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":movieId", $movieId);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return [
+            'average' => $row['average'] ? number_format($row['average'], 1) : 0.0,
+            'count' => $row['count']
+        ];
+    }
+
+    // Lấy đánh giá của người dùng hiện tại
+    public function getUserRating($movieId, $userId)
+    {
+        $query = "SELECT rating 
+                  FROM ratings 
+                  WHERE movieId = :movieId AND userId = :userId";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":movieId", $movieId);
+        $stmt->bindParam(":userId", $userId);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ? $row['rating'] : 0;
+    }
+    
+    // Lưu hoặc cập nhật đánh giá của người dùng
+    public function rateMovie($movieId, $userId, $rating)
+    {
+        // Kiểm tra xem người dùng đã đánh giá phim này chưa
+        $query = "SELECT id FROM ratings WHERE movieId = :movieId AND userId = :userId";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":movieId", $movieId);
+        $stmt->bindParam(":userId", $userId);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            // Nếu đã có đánh giá, cập nhật
+            $query = "UPDATE ratings SET rating = :rating, createdAt = NOW() 
+                      WHERE movieId = :movieId AND userId = :userId";
+        } else {
+            // Nếu chưa có, thêm mới
+            $query = "INSERT INTO ratings (movieId, userId, rating, createdAt) 
+                      VALUES (:movieId, :userId, :rating, NOW())";
+        }
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":movieId", $movieId);
+        $stmt->bindParam(":userId", $userId);
+        $stmt->bindParam(":rating", $rating);
+
+        return $stmt->execute();
+    }
+
     // Tạo phim mới
     public function getMoviesWithDetails($limit, $offset)
     {
