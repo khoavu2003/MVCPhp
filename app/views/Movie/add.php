@@ -24,31 +24,41 @@
         <input type="text" class="form-control" id="bannerImage" name="bannerImage" required>
     </div>
 
-    <!-- Dropdown for Actor with collapse -->
+    <!-- Trailer URL -->
     <div class="mb-3">
-        <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#actorsCollapse" aria-expanded="false" aria-controls="actorsCollapse">
-            Select Actors
-        </button>
-        <div class="collapse" id="actorsCollapse">
-            <select class="form-control mt-2" id="actors" name="actors[]" multiple required>
-                <?php foreach ($actors as $actor): ?>
-                    <option value="<?php echo $actor['id']; ?>"><?php echo $actor['name']; ?></option>
-                <?php endforeach; ?>
-            </select>
+        <label for="trailer" class="form-label">Trailer URL</label>
+        <input type="text" class="form-control" id="trailer" name="trailer" required>
+    </div>
+
+    <!-- Theatrical Release Date -->
+    <div class="mb-3">
+        <label for="theatricalReleaseDate" class="form-label">Theatrical Release Date</label>
+        <input type="date" class="form-control" id="theatricalReleaseDate" name="theatricalReleaseDate" required>
+    </div>
+
+    <!-- Dropdown for Actors -->
+    <div class="mb-3">
+        <label class="form-label">Select Actors</label>
+        <div class="form-check">
+            <?php foreach ($actors as $actor): ?>
+                <input class="form-check-input" type="checkbox" value="<?php echo $actor['id']; ?>" id="actor_<?php echo $actor['id']; ?>" name="actors[]">
+                <label class="form-check-label" for="actor_<?php echo $actor['id']; ?>">
+                    <?php echo $actor['name']; ?>
+                </label><br>
+            <?php endforeach; ?>
         </div>
     </div>
 
-    <!-- Dropdown for Genre with collapse -->
+    <!-- Dropdown for Genres -->
     <div class="mb-3">
-        <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#genresCollapse" aria-expanded="false" aria-controls="genresCollapse">
-            Select Genres
-        </button>
-        <div class="collapse" id="genresCollapse">
-            <select class="form-control mt-2" id="genres" name="genres[]" multiple required>
-                <?php foreach ($genres as $genre): ?>
-                    <option value="<?php echo $genre['id']; ?>"><?php echo $genre['name']; ?></option>
-                <?php endforeach; ?>
-            </select>
+        <label class="form-label">Select Genres</label>
+        <div class="form-check">
+            <?php foreach ($genres as $genre): ?>
+                <input class="form-check-input" type="checkbox" value="<?php echo $genre['id']; ?>" id="genre_<?php echo $genre['id']; ?>" name="genres[]">
+                <label class="form-check-label" for="genre_<?php echo $genre['id']; ?>">
+                    <?php echo $genre['name']; ?>
+                </label><br>
+            <?php endforeach; ?>
         </div>
     </div>
 

@@ -76,6 +76,21 @@ class MovieActor {
 
         return $stmt->execute();
     }
+    function getActorsByMovieId($movieId) {
+        $query = "
+        SELECT a.id, a.name
+        FROM " . $this->table_name . " ma
+        JOIN Actor a ON ma.actorId = a.id
+        WHERE ma.movieId = :movieId
+        ";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":movieId", $movieId);
+        $stmt->execute();
+
+        // Trả về tất cả diễn viên gắn với movieId
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     // Xóa MovieActor
     function delete() {

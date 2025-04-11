@@ -63,41 +63,50 @@ class Actor
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    function create()
+
+    function create($data)
     {
+        // Prepare the SQL query to insert the movie
         $query = "INSERT INTO " . $this->table_name . " 
-                  SET name=:name, birthDate=:birthDate, birthPlace=:birthPlace, description=:description, profileImage=:profileImage";
+              SET name=:name, birthDate=:birthDate, birthPlace=:birthPlace, description=:description, profileImage=:profileImage";
+
         $stmt = $this->conn->prepare($query);
 
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->birthDate = htmlspecialchars(strip_tags($this->birthDate));
-        $this->birthPlace = htmlspecialchars(strip_tags($this->birthPlace));
-        $this->description = htmlspecialchars(strip_tags($this->description));
-        $this->profileImage = htmlspecialchars(strip_tags($this->profileImage));
+        // Clean the data to avoid SQL injection
+        $this->name = htmlspecialchars(strip_tags($data['name']));
+        $this->birthDate = htmlspecialchars(strip_tags($data['birthDate']));
+        $this->birthPlace = htmlspecialchars(strip_tags($data['birthPlace']));
+        $this->description = htmlspecialchars(strip_tags($data['description']));
+        $this->profileImage = htmlspecialchars(strip_tags($data['profileImage']));
 
+        // Bind parameters
         $stmt->bindParam(":name", $this->name);
         $stmt->bindParam(":birthDate", $this->birthDate);
         $stmt->bindParam(":birthPlace", $this->birthPlace);
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":profileImage", $this->profileImage);
 
+        // Execute the query and return the result
         return $stmt->execute();
     }
-
-    function update()
+    public function update($data)
     {
+        // Prepare the SQL query to update the actor data
         $query = "UPDATE " . $this->table_name . " 
-                  SET name=:name, birthDate=:birthDate, birthPlace=:birthPlace, description=:description, profileImage=:profileImage 
-                  WHERE id=:id";
+              SET name=:name, birthDate=:birthDate, birthPlace=:birthPlace, description=:description, profileImage=:profileImage
+              WHERE id=:id";
+
         $stmt = $this->conn->prepare($query);
 
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->birthDate = htmlspecialchars(strip_tags($this->birthDate));
-        $this->birthPlace = htmlspecialchars(strip_tags($this->birthPlace));
-        $this->description = htmlspecialchars(strip_tags($this->description));
-        $this->profileImage = htmlspecialchars(strip_tags($this->profileImage));
+        // Sanitize and bind the data
+        $this->id = htmlspecialchars(strip_tags($data['id']));
+        $this->name = htmlspecialchars(strip_tags($data['name']));
+        $this->birthDate = htmlspecialchars(strip_tags($data['birthDate']));
+        $this->birthPlace = htmlspecialchars(strip_tags($data['birthPlace']));
+        $this->description = htmlspecialchars(strip_tags($data['description']));
+        $this->profileImage = htmlspecialchars(strip_tags($data['profileImage']));
 
+        // Bind the parameters
         $stmt->bindParam(":id", $this->id);
         $stmt->bindParam(":name", $this->name);
         $stmt->bindParam(":birthDate", $this->birthDate);
@@ -105,6 +114,7 @@ class Actor
         $stmt->bindParam(":description", $this->description);
         $stmt->bindParam(":profileImage", $this->profileImage);
 
+        // Execute the query and return the result
         return $stmt->execute();
     }
 

@@ -10,7 +10,7 @@ class Router {
         $url = rtrim($url, '/');
         $url = filter_var($url, FILTER_SANITIZE_URL);
         $url = explode('/', $url);
-
+        
         // Mặc định controller là MovieController và action là index
         $controllerName = isset($url[0]) && $url[0] != '' ? ucfirst($url[0]) . 'Controller' : 'MovieController';
         $action = isset($url[1]) && $url[1] != '' ? $url[1] : 'index';

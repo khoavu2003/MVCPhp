@@ -79,6 +79,20 @@ class MovieGenre {
 
         return $stmt->execute();
     }
+    function getGenresByMovieId($movieId) {
+        $query = "
+            SELECT g.id, g.name
+            FROM " . $this->table_name . " mg
+            JOIN Genre g ON mg.genreId = g.id
+            WHERE mg.movieId = :movieId
+        ";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":movieId", $movieId);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     function deleteByMovieId($movieId) {
         $query = "DELETE FROM " . $this->table_name . " WHERE movieId = :movieId";
         $stmt = $this->conn->prepare($query);
