@@ -1,0 +1,36 @@
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.pagination ul {
+    display: flex;
+    list-style: none;
+    background-color: var(--light-dark-bg);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.pagination li {
+    margin: 0;
+}
+
+.pagination a {
+    display: block;
+    padding: 10px 16px;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.pagination a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.pagination a.active {
+    background-color: var(--primary-color);
+    color: #000;
+    font-weight: 500;
+}

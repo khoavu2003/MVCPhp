@@ -72,35 +72,8 @@
         </div>
 
         <!-- Content for Add Movie -->
-        <div id="add-movie-content" class="content" style="display: none;">
-            <h3>Add New Movie</h3>
-            <form action="/add_movie" method="POST">
-                <div class="mb-3">
-                    <label for="title" class="form-label">Title</label>
-                    <input type="text" class="form-control" id="title" name="title" required>
-                </div>
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea class="form-control" id="description" name="description" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label for="releaseYear" class="form-label">Release Year</label>
-                    <input type="number" class="form-control" id="releaseYear" name="releaseYear" required>
-                </div>
-                <div class="mb-3">
-                    <label for="director" class="form-label">Director</label>
-                    <input type="text" class="form-control" id="director" name="director" required>
-                </div>
-                <div class="mb-3">
-                    <label for="poster" class="form-label">Poster URL</label>
-                    <input type="text" class="form-control" id="poster" name="poster" required>
-                </div>
-                <div class="mb-3">
-                    <label for="bannerImage" class="form-label">Banner Image URL</label>
-                    <input type="text" class="form-control" id="bannerImage" name="bannerImage" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Add Movie</button>
-            </form>
+        <div id="add-movie-content" class="content" style="display:none;">
+            <!-- Form for Add Movie will be loaded here dynamically -->
         </div>
     </div>
 
@@ -126,8 +99,17 @@
 
         // Add Movie Section
         document.getElementById('add-movie').addEventListener('click', function () {
-            document.getElementById('manage-movies-content').style.display = 'none';
-            document.getElementById('add-movie-content').style.display = 'block';
+            // Load Add Movie dynamically using AJAX
+            fetch('/Movie_Project/Movie/add')  // Adjust with correct URL path
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('add-movie-content').innerHTML = html;
+                    document.getElementById('add-movie-content').style.display = 'block';
+                    document.getElementById('manage-movies-content').style.display = 'none'; // Hide the manage movie content
+                })
+                .catch(error => {
+                    console.log('Error loading add movie content:', error);
+                });
         });
     </script>
 
