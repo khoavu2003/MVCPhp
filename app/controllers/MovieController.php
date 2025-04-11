@@ -1,4 +1,7 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 // Include các file cần thiết
 include_once 'app/config/database.php';
 include_once 'app/models/Movie.php';
@@ -220,14 +223,40 @@ class MovieController
     {
         $this->movie->id = $movieId;
         $movie = $this->movie->getById();
-    
+
         if ($movie) {
             // Lấy danh sách actors liên quan
             $actors = $this->actor->getActorsByMovieId($movieId);
-    
+
             // Lấy danh sách genres liên quan
             $genres = $this->genre->getGenresByMovieId($movieId);
-    
+
+            // Lấy đánh giá trung bình của phim
+            $ratingData = $this->movie->getAverageRating($movieId);
+            $averageRating = $ratingData['average'];
+            $ratingCount = $ratingData['count'];
+
+            // Lấy đánh giá của người dùng hiện tại (nếu có)
+            $userRating = 0;
+            if (isset($_SESSION['user_id'])) {
+                $userRating = $this->movie->getUserRating($movieId, $_SESSION['user_id']);
+            }
+
+            // Lấy danh sách phim nổi bật (Featured Videos)
+            $limit = 10; // Số lượng phim tối đa
+            $offset = 0; // Bắt đầu từ phim đầu tiên
+            $featuredStmt = $this->movie->getMoviesByPage($limit, $offset);
+            $featuredMovies = [];
+            while ($row = $featuredStmt->fetch(PDO::FETCH_ASSOC)) {
+                $movieRatingData = $this->movie->getAverageRating($row['id']);
+                $featuredMovies[] = [
+                    'id' => $row['id'],
+                    'bannerImage' => $row['bannerImage'],
+                    'title' => $row['title'],
+                    'averageRating' => $movieRatingData['average'],
+                ];
+            }
+
             // Truyền dữ liệu vào view
             include 'app/views/Movie/detail.php';
         } else {
@@ -235,6 +264,58 @@ class MovieController
             header('Location:/Movie_Project/Movie');
             exit();
         }
+    }
+
+    // Hành động đánh giá phim
+    public function rate($movieId)
+    {
+        // Kiểm tra người dùng đã đăng nhập chưa
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập để đánh giá phim.']);
+            exit();
+        }
+
+        // Kiểm tra yêu cầu có phải POST không
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Phương thức không được hỗ trợ.']);
+            exit();
+        }
+
+        // Lấy dữ liệu từ yêu cầu
+        $data = json_decode(file_get_contents('php://input'), true);
+        $rating = isset($data['rating']) ? (int)$data['rating'] : 0;
+
+        // Kiểm tra rating hợp lệ (1-10)
+        if ($rating < 1 || $rating > 10) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Điểm đánh giá phải từ 1 đến 10.']);
+            exit();
+        }
+
+        // Lưu đánh giá vào database
+        $userId = $_SESSION['user_id'];
+        $success = $this->movie->rateMovie($movieId, $userId, $rating);
+
+        if ($success) {
+            // Lấy lại đánh giá trung bình và số lượng đánh giá
+            $ratingData = $this->movie->getAverageRating($movieId);
+            $averageRating = $ratingData['average'];
+            $ratingCount = $ratingData['count'];
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Đánh giá thành công!',
+                'averageRating' => $averageRating,
+                'ratingCount' => $ratingCount,
+                'userRating' => $rating
+            ]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Có lỗi xảy ra khi lưu đánh giá.']);
+        }
+        exit();
     }
 
     // Xóa movie
