@@ -83,72 +83,78 @@ class Movie
 
     // Tạo mới movie
     public function create($data)
-    {
-        // Chuẩn bị câu lệnh SQL
-        $query = "INSERT INTO " . $this->table_name . " 
+{
+    // Prepare the SQL query to insert the movie
+    $query = "INSERT INTO " . $this->table_name . " 
               SET title=:title, description=:description, releaseYear=:releaseYear, 
-                  director=:director, poster=:poster, bannerImage=:bannerImage";
+                  director=:director, poster=:poster, bannerImage=:bannerImage, 
+                  trailer=:trailer, theatricalReleaseDate=:theatricalReleaseDate";
 
-        $stmt = $this->conn->prepare($query);
+    $stmt = $this->conn->prepare($query);
 
-        // Xử lý dữ liệu
-        $this->title = htmlspecialchars(strip_tags($data['title']));
-        $this->description = htmlspecialchars(strip_tags($data['description']));
-        $this->releaseYear = htmlspecialchars(strip_tags($data['releaseYear']));
-        $this->director = htmlspecialchars(strip_tags($data['director']));
-        $this->poster = htmlspecialchars(strip_tags($data['poster']));
-        $this->bannerImage = htmlspecialchars(strip_tags($data['bannerImage']));
+    // Sanitize the data
+    $this->title = htmlspecialchars(strip_tags($data['title']));
+    $this->description = htmlspecialchars(strip_tags($data['description']));
+    $this->releaseYear = htmlspecialchars(strip_tags($data['releaseYear']));
+    $this->director = htmlspecialchars(strip_tags($data['director']));
+    $this->poster = htmlspecialchars(strip_tags($data['poster']));
+    $this->bannerImage = htmlspecialchars(strip_tags($data['bannerImage']));
+    $this->trailer = htmlspecialchars(strip_tags($data['trailer']));  // Sanitize trailer
+    $this->theatricalReleaseDate = htmlspecialchars(strip_tags($data['theatricalReleaseDate']));  // Sanitize theatricalReleaseDate
 
-        // Bind parameters
-        $stmt->bindParam(":title", $this->title);
-        $stmt->bindParam(":description", $this->description);
-        $stmt->bindParam(":releaseYear", $this->releaseYear);
-        $stmt->bindParam(":director", $this->director);
-        $stmt->bindParam(":poster", $this->poster);
-        $stmt->bindParam(":bannerImage", $this->bannerImage);
+    // Bind parameters
+    $stmt->bindParam(":title", $this->title);
+    $stmt->bindParam(":description", $this->description);
+    $stmt->bindParam(":releaseYear", $this->releaseYear);
+    $stmt->bindParam(":director", $this->director);
+    $stmt->bindParam(":poster", $this->poster);
+    $stmt->bindParam(":bannerImage", $this->bannerImage);
+    $stmt->bindParam(":trailer", $this->trailer);  // Bind trailer
+    $stmt->bindParam(":theatricalReleaseDate", $this->theatricalReleaseDate);  // Bind theatricalReleaseDate
 
-        // Thực thi câu lệnh
-        if ($stmt->execute()) {
-            $this->id = $this->conn->lastInsertId(); // Lấy ID của movie vừa chèn
-            return true;
-        }
-
-        return false;
+    // Execute the query
+    if ($stmt->execute()) {
+        $this->id = $this->conn->lastInsertId(); // Get the ID of the newly inserted movie
+        return true;
     }
+
+    return false;
+}
+
 
 
     // Cập nhật phim
-    function update()
-    {
-        $query = "UPDATE " . $this->table_name . " 
-                  SET title=:title, description=:description, releaseYear=:releaseYear, 
-                      director=:director, poster=:poster, trailer=:trailer, 
-                      theatricalReleaseDate=:theatricalReleaseDate, bannerImage=:bannerImage 
-                  WHERE id=:id";
-        $stmt = $this->conn->prepare($query);
+    public function update($data)
+{
+    // Cập nhật thông tin movie
+    $query = "UPDATE " . $this->table_name . " 
+              SET title=:title, description=:description, releaseYear=:releaseYear, 
+                  director=:director, poster=:poster, bannerImage=:bannerImage
+              WHERE id=:id";
 
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $this->title = htmlspecialchars(strip_tags($this->title));
-        $this->description = htmlspecialchars(strip_tags($this->description));
-        $this->releaseYear = htmlspecialchars(strip_tags($this->releaseYear));
-        $this->director = htmlspecialchars(strip_tags($this->director));
-        $this->poster = htmlspecialchars(strip_tags($this->poster));
-        $this->trailer = htmlspecialchars(strip_tags($this->trailer));
-        $this->theatricalReleaseDate = htmlspecialchars(strip_tags($this->theatricalReleaseDate));
-        $this->bannerImage = htmlspecialchars(strip_tags($this->bannerImage));
+    $stmt = $this->conn->prepare($query);
 
-        $stmt->bindParam(":id", $this->id);
-        $stmt->bindParam(":title", $this->title);
-        $stmt->bindParam(":description", $this->description);
-        $stmt->bindParam(":releaseYear", $this->releaseYear);
-        $stmt->bindParam(":director", $this->director);
-        $stmt->bindParam(":poster", $this->poster);
-        $stmt->bindParam(":trailer", $this->trailer);
-        $stmt->bindParam(":theatricalReleaseDate", $this->theatricalReleaseDate);
-        $stmt->bindParam(":bannerImage", $this->bannerImage);
+    // Lấy các giá trị từ data
+    $this->title = htmlspecialchars(strip_tags($data['title']));
+    $this->description = htmlspecialchars(strip_tags($data['description']));
+    $this->releaseYear = htmlspecialchars(strip_tags($data['releaseYear']));
+    $this->director = htmlspecialchars(strip_tags($data['director']));
+    $this->poster = htmlspecialchars(strip_tags($data['poster']));
+    $this->bannerImage = htmlspecialchars(strip_tags($data['bannerImage']));
+    
+    // Bind parameters
+    $stmt->bindParam(":id", $this->id);
+    $stmt->bindParam(":title", $this->title);
+    $stmt->bindParam(":description", $this->description);
+    $stmt->bindParam(":releaseYear", $this->releaseYear);
+    $stmt->bindParam(":director", $this->director);
+    $stmt->bindParam(":poster", $this->poster);
+    $stmt->bindParam(":bannerImage", $this->bannerImage);
 
-        return $stmt->execute();
-    }
+    // Thực hiện câu lệnh SQL
+    return $stmt->execute();
+}
+
 
     // Xóa phim
     function delete()

@@ -6,6 +6,8 @@ include_once 'app/models/Actor.php';
 include_once 'app/models/MovieActor.php';
 include_once 'app/models/Genre.php';
 include_once 'app/models/MovieGenre.php';
+include_once 'app/middleware/AuthMiddleware.php';
+
 
 class MovieController
 {
@@ -18,6 +20,7 @@ class MovieController
 
     public function __construct()
     {
+        
         $database = new Database();
         $this->db = $database->getConnection();
         $this->movie = new Movie($this->db);
@@ -45,6 +48,7 @@ class MovieController
     // Quản lý danh sách phim
     public function manageMovie()
     {
+        AuthMiddleware::checkAdmin();
         $limit = 10; // Số lượng phim trên mỗi trang trong quản lý admin
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $offset = ($page - 1) * $limit;
@@ -57,12 +61,14 @@ class MovieController
         include 'app/views/Movie/manage_movie.php'; // Truyền dữ liệu qua view
     }
     // Tạo mới movie
-    public function add() {
+    public function add()
+    {
+        AuthMiddleware::checkAdmin();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Kiểm tra dữ liệu gửi lên từ form
-            var_dump($_POST); // Thêm dòng này để kiểm tra dữ liệu gửi lên
-            
-            // Lấy thông tin từ form
+            // Check the form data sent
+            var_dump($_POST); // Debug the data being sent
+
+            // Prepare data for the movie
             $data = [
                 'title' => $_POST['title'],
                 'description' => $_POST['description'],
@@ -70,19 +76,20 @@ class MovieController
                 'director' => $_POST['director'],
                 'poster' => $_POST['poster'],
                 'bannerImage' => $_POST['bannerImage'],
+                'trailer' => $_POST['trailer'], // Add the trailer data
+                'theatricalReleaseDate' => $_POST['theatricalReleaseDate'], // Add the theatricalReleaseDate data
                 'actors' => isset($_POST['actors']) ? $_POST['actors'] : [],
                 'genres' => isset($_POST['genres']) ? $_POST['genres'] : []
             ];
-    
-            var_dump($data); // Kiểm tra dữ liệu sau khi xử lý
-            
-    
-            // Gọi hàm addMovie để thực hiện thêm phim
+
+            var_dump($data); // Debug the data after processing
+
+            // Call the create function to add the movie
             if ($this->movie->create($data)) {
-                // Lấy movie id mới tạo ra
+                // Get the movie ID of the newly added movie
                 $movieId = $this->movie->id;
-    
-                // Thêm MovieActor và MovieGenre
+
+                // Add MovieActor and MovieGenre relationships
                 if (isset($data['actors']) && !empty($data['actors'])) {
                     foreach ($data['actors'] as $actorId) {
                         $this->movieActor->movieId = $movieId;
@@ -90,7 +97,7 @@ class MovieController
                         $this->movieActor->create();
                     }
                 }
-    
+
                 if (isset($data['genres']) && !empty($data['genres'])) {
                     foreach ($data['genres'] as $genreId) {
                         $this->movieGenre->movieId = $movieId;
@@ -98,7 +105,7 @@ class MovieController
                         $this->movieGenre->create();
                     }
                 }
-    
+
                 $_SESSION['success'] = 'Movie added successfully';
                 header('Location: /Movie_Project/Admin');
                 exit;
@@ -106,101 +113,93 @@ class MovieController
                 $_SESSION['error'] = 'Error occurred while adding movie';
             }
         }
-    
-        // Lấy danh sách actors và genres để hiển thị trong dropdown
+
+        // Fetch actors and genres for dropdowns
         $actors = $this->actor->getAll()->fetchAll(PDO::FETCH_ASSOC);
         $genres = $this->genre->getAll()->fetchAll(PDO::FETCH_ASSOC);
-    
+
+        // Include the form view to display
         include 'app/views/Movie/add.php';
     }
-    
+
+
     // Edit movie details
     public function update($movieId)
     {
+        AuthMiddleware::checkAdmin();
+        // Lấy thông tin movie theo ID
+        $this->movie->id = $movieId;
+        $movie = $this->movie->getById();  // Lấy dữ liệu movie hiện tại từ database
+
+        if (!$movie) {
+            $_SESSION['error'] = 'Movie does not exist.';
+            header('Location: /Movie_Project/Admin');
+            exit;
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Lấy thông tin từ form
-            $this->movie->id = $movieId;
-            $this->movie->title = $_POST['title'];
-            $this->movie->description = $_POST['description'];
-            $this->movie->releaseYear = $_POST['releaseYear'];
-            $this->movie->director = $_POST['director'];
-            $this->movie->poster = $_POST['poster'];
-            $this->movie->bannerImage = $_POST['bannerImage'];
+            // Collect form data including trailer and theatricalReleaseDate
+            $data = [
+                'title' => $_POST['title'],
+                'description' => $_POST['description'],
+                'releaseYear' => $_POST['releaseYear'],
+                'director' => $_POST['director'],
+                'poster' => $_POST['poster'],
+                'bannerImage' => $_POST['bannerImage'],
+                'trailer' => isset($_POST['trailer']) ? $_POST['trailer'] : '',  // Handle trailer input
+                'theatricalReleaseDate' => isset($_POST['theatricalReleaseDate']) ? $_POST['theatricalReleaseDate'] : '',  // Handle theatricalReleaseDate input
+                'actors' => isset($_POST['actors']) ? $_POST['actors'] : [],
+                'genres' => isset($_POST['genres']) ? $_POST['genres'] : []
+            ];
 
-            // Xử lý upload ảnh nếu có (chỉ cần cho bannerImage hoặc poster)
-            if (isset($_FILES['poster']) && $_FILES['poster']['error'] === UPLOAD_ERR_OK) {
-                $uploadDir = __DIR__ . '/../assets/images/'; // Đường dẫn đến thư mục images
-                $uploadFile = $uploadDir . basename($_FILES['poster']['name']);
+            // Check if the movie was successfully updated
+            if ($this->movie->update($data)) {
+                // Xóa các actors và genres cũ
+                $this->movieActor->deleteByMovieId($movieId);
+                $this->movieGenre->deleteByMovieId($movieId);
 
-                // Kiểm tra kiểu file và kích thước file
-                $imageFileType = strtolower(pathinfo($uploadFile, PATHINFO_EXTENSION));
-                if (!in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif'])) {
-                    echo "Kiểu file không hợp lệ.";
-                    return;
-                }
-
-                if ($_FILES['poster']['size'] > 500000) {
-                    echo "Kích thước file quá lớn.";
-                    return;
-                }
-
-                if (move_uploaded_file($_FILES['poster']['tmp_name'], $uploadFile)) {
-                    $this->movie->poster = 'assets/images/' . basename($_FILES['poster']['name']); // Lưu đường dẫn
-                } else {
-                    echo "Lỗi khi upload ảnh poster.";
-                    return;
-                }
-            }
-
-            // Cập nhật movie trong cơ sở dữ liệu
-            if ($this->movie->update()) {
-                // Cập nhật MovieActor (Diễn viên)
-                $this->movieActor->deleteByMovieId($movieId);  // Xóa các diễn viên cũ
-                if (isset($_POST['actors']) && !empty($_POST['actors'])) {
-                    foreach ($_POST['actors'] as $actorId) {
+                // Thêm actors mới
+                if (!empty($data['actors'])) {
+                    foreach ($data['actors'] as $actorId) {
                         $this->movieActor->movieId = $movieId;
                         $this->movieActor->actorId = $actorId;
-                        $this->movieActor->create();  // Thêm lại các diễn viên vào bảng phụ
+                        $this->movieActor->create(); // Thêm MovieActor vào bảng phụ
                     }
                 }
 
-                // Cập nhật MovieGenre (Thể loại)
-                $this->movieGenre->deleteByMovieId($movieId);  // Xóa các thể loại cũ
-                if (isset($_POST['genres']) && !empty($_POST['genres'])) {
-                    foreach ($_POST['genres'] as $genreId) {
+                // Thêm genres mới
+                if (!empty($data['genres'])) {
+                    foreach ($data['genres'] as $genreId) {
                         $this->movieGenre->movieId = $movieId;
                         $this->movieGenre->genreId = $genreId;
-                        $this->movieGenre->create();  // Thêm lại các thể loại vào bảng phụ
+                        $this->movieGenre->create(); // Thêm MovieGenre vào bảng phụ
                     }
                 }
 
-                // Chuyển hướng hoặc hiển thị thông báo thành công
                 $_SESSION['success'] = 'Movie updated successfully';
-                header('Location: /Movie_Project/Movie');
+                header('Location: /Movie_Project/Admin');
                 exit;
             } else {
                 $_SESSION['error'] = 'Error occurred while updating movie';
             }
-        } else {
-            // Lấy thông tin movie từ cơ sở dữ liệu
-            $this->movie->id = $movieId;
-            $movie = $this->movie->getById();
-
-            // Lấy danh sách actors và genres hiện tại
-            $actors = $this->actor->getAll()->fetchAll(PDO::FETCH_ASSOC);
-            $genres = $this->genre->getAll()->fetchAll(PDO::FETCH_ASSOC);
-
-            // Lấy danh sách actors và genres đã gán cho movie này
-            $assignedActors = $this->actor->getActorsByMovieId($movieId);
-            $assignedActorIds = array_column($assignedActors, 'id');
-
-            $assignedGenres = $this->genre->getGenresByMovieId($movieId);
-            $assignedGenreIds = array_column($assignedGenres, 'id');
-
-            // Hiển thị form chỉnh sửa thông tin movie
-            include 'app/views/Movie/edit.php';  // Gọi view chỉnh sửa
         }
+
+        // Lấy danh sách actors và genres để hiển thị trong dropdown
+        $actors = $this->actor->getAll()->fetchAll(PDO::FETCH_ASSOC);
+        $genres = $this->genre->getAll()->fetchAll(PDO::FETCH_ASSOC);
+
+        // Lấy danh sách actors và genres đã được gán cho movie
+        $assignedActorIds = $this->movieActor->getActorsByMovieId($movieId);
+        $assignedGenreIds = $this->movieGenre->getGenresByMovieId($movieId);
+
+        // Truyền dữ liệu vào view
+        include 'app/views/Movie/edit.php';
     }
+
+
+
+
+
 
     // Chi tiết movie
     public function detail($movieId)
@@ -214,9 +213,10 @@ class MovieController
     // Xóa movie
     public function delete($movieId)
     {
+        AuthMiddleware::checkAdmin();
         $this->movie->id = $movieId;
         if ($this->movie->delete()) {
-            header('Location: /Movie_Project/Movie');
+            header('Location: /Movie_Project/Movie/manageMovie');
             exit;
         } else {
             echo "Lỗi khi xóa movie.";

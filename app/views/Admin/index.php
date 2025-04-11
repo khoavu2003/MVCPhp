@@ -53,7 +53,7 @@
         <div class="p-3">
             <h4>Admin Dashboard</h4>
             <hr>
-            <a href="#" id="manage-movies">Manage Movies</a>
+            <a href="/Movie_Project/Movie/manageMovie" >Manage Movies</a>
             <a href="#" id="add-movie">Add Movie</a>
             <a href="#">Settings</a>
             <a href="#">Logout</a>
@@ -81,7 +81,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom JS to switch between Manage Movies and Add Movie -->
-    <script>
+    <!-- <script>
         // Load Manage Movies via AJAX
         document.getElementById('manage-movies').addEventListener('click', function () {
             // Load Manage Movies dynamically using AJAX
@@ -111,7 +111,7 @@
                     console.log('Error loading add movie content:', error);
                 });
         });
-    </script>
+    </script> -->
 
 </body>
 
