@@ -42,7 +42,7 @@ function getYouTubeEmbedUrl($url)
             <div class="main-content">
                 <!-- Trailer Section -->
                 <div class="trailer-section">
-                    <a href="/Movie_Project/Movie" class="back-button">Quay lại</a>
+                    <a href="/Movie_Project/" class="back-button">Quay lại</a>
                     <?php if (!empty($movie['trailer'])): ?>
                         <iframe
                             src="<?php echo htmlspecialchars(getYouTubeEmbedUrl($movie['trailer'])) . '?autoplay=1&mute=1'; ?>"
