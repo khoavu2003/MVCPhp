@@ -9,6 +9,7 @@ class User {
     public $email;
     public $password;
     public $role;
+    public $google_id;
 
     public function __construct($db) {
         $this->conn = $db;
@@ -38,6 +39,7 @@ class User {
             $this->email = $row['email'];
             $this->password = $row['password'];
             $this->role = $row['role'];
+            $this->google_id = $row['google_id'];
             return $row;
         }
         return null;
@@ -52,27 +54,41 @@ class User {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         return $user;
     }
+
+    // Lấy user theo Google ID
+    function getByGoogleId() {
+        $query = "SELECT id, email, name, password, role, google_id FROM " . $this->table_name . " WHERE google_id = :google_id LIMIT 1";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':google_id', $this->google_id);
+        $stmt->execute();
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $user;
+    }
     // Tạo user mới
     function create() {
-        $query = "INSERT INTO " . $this->table_name . " SET name=:name, email=:email, password=:password, role=:role";
+        $query = "INSERT INTO " . $this->table_name . " SET name=:name, email=:email, password=:password, role=:role, google_id=:google_id ";
         $stmt = $this->conn->prepare($query);
 
         $this->name = htmlspecialchars(strip_tags($this->name));
         $this->email = htmlspecialchars(strip_tags($this->email));
         $this->password = htmlspecialchars(strip_tags($this->password));
         $this->role = htmlspecialchars(strip_tags($this->role));
+        $this->google_id = $this->google_id ? htmlspecialchars(strip_tags($this->google_id)) : null;
 
         $stmt->bindParam(":name", $this->name);
         $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":password", $this->password);
         $stmt->bindParam(":role", $this->role);
+        $stmt->bindParam(":google_id", $this->google_id);
 
         return $stmt->execute();
     }
 
     // Cập nhật thông tin user
     function update() {
-        $query = "UPDATE " . $this->table_name . " SET name=:name, email=:email, password=:password, role=:role WHERE id=:id";
+        $query = "UPDATE " . $this->table_name . " SET name=:name, email=:email, password=:password, role=:role, google_id=:google_id WHERE id=:id";
         $stmt = $this->conn->prepare($query);
 
         $this->id = htmlspecialchars(strip_tags($this->id));
@@ -80,12 +96,14 @@ class User {
         $this->email = htmlspecialchars(strip_tags($this->email));
         $this->password = htmlspecialchars(strip_tags($this->password));
         $this->role = htmlspecialchars(strip_tags($this->role));
+        $this->google_id = $this->google_id ? htmlspecialchars(strip_tags($this->google_id)) : null;
 
         $stmt->bindParam(":id", $this->id);
         $stmt->bindParam(":name", $this->name);
         $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":password", $this->password);
         $stmt->bindParam(":role", $this->role);
+        $stmt->bindParam(":google_id", $this->google_id);
 
         return $stmt->execute();
     }

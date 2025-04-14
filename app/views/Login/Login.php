@@ -54,6 +54,11 @@ if (isset($_SESSION['user_id'])) {
             <div class="text-center mt-3">
                 <button type="button" class="btn btn-primary" id="fb-login-btn" onclick="loginWithFacebook()">Đăng nhập bằng Facebook</button>
             </div>
+            <div class="text-center mt-3">
+                <a href="/Movie_Project/Login/googleLogin" class="btn btn-danger">
+                    <i class="fab fa-google"></i> Đăng nhập bằng Google
+                </a>
+            </div>
             <p class="text-center">
                 Bạn chưa có tài khoản? 
                 <a href="<?php echo BASE_URL; ?>/Register" class="text-yellow-500">Đăng ký</a>
@@ -63,7 +68,7 @@ if (isset($_SESSION['user_id'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
-    <script>
+<script>
         window.fbAsyncInit = function() {
             FB.init({
                 appId: '658420980224756',
@@ -81,16 +86,14 @@ if (isset($_SESSION['user_id'])) {
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
 
-        // Handle form submission
         const loginForm = document.getElementById('login-form');
         const loginBtn = document.getElementById('login-btn');
         loginForm.addEventListener('submit', function(e) {
             loginBtn.disabled = true;
             loginBtn.textContent = 'Đang xử lý...';
-            console.log('Regular login submitted:', { email: document.getElementById('email').value }); // Debug
+            console.log('Regular login submitted:', { email: document.getElementById('email').value });
         });
 
-        // Reset button if page reloads with error
         window.addEventListener('load', function() {
             if (document.querySelector('.alert-danger')) {
                 loginBtn.disabled = false;
@@ -107,7 +110,7 @@ if (isset($_SESSION['user_id'])) {
                 if (response.authResponse) {
                     const accessToken = response.authResponse.accessToken;
                     FB.api('/me', {fields: 'name,email'}, function(userInfo) {
-                        console.log('Facebook user info:', userInfo); // Debug
+                        console.log('Facebook user info:', userInfo);
                         fetch('<?php echo BASE_URL; ?>/Login/facebookLogin', {
                             method: 'POST',
                             headers: {'Content-Type': 'application/json'},
@@ -123,7 +126,7 @@ if (isset($_SESSION['user_id'])) {
                         .then(data => {
                             fbButton.disabled = false;
                             fbButton.textContent = 'Đăng nhập bằng Facebook';
-                            console.log('Facebook login response:', data); // Debug
+                            console.log('Facebook login response:', data);
                             if (data.success) {
                                 fetch('<?php echo BASE_URL; ?>/Login/getUserRole', {
                                     method: 'GET',
@@ -131,28 +134,33 @@ if (isset($_SESSION['user_id'])) {
                                 })
                                 .then(response => response.json())
                                 .then(roleData => {
-                                    console.log('Role data:', roleData); // Debug
+                                    console.log('Role data:', roleData);
                                     if (roleData.role === 'admin') {
                                         window.location.href = "<?php echo BASE_URL; ?>/Admin";
                                     } else {
                                         window.location.href = "<?php echo BASE_URL; ?>/";
                                     }
+                                })
+                                .catch(error => {
+                                    console.error('Role fetch error:', error);
+                                    alert('Lỗi kiểm tra vai trò: ' + error.message);
                                 });
                             } else {
-                                alert('Đăng nhập thất bại: ' + (data.message || 'Unknown error'));
+                                alert('Đăng nhập thất bại: ' + (data.message || 'Lỗi không xác định'));
                             }
                         })
                         .catch(error => {
                             fbButton.disabled = false;
                             fbButton.textContent = 'Đăng nhập bằng Facebook';
-                            console.error('Fetch error:', error); // Debug
+                            console.error('Fetch error:', error);
                             alert('Lỗi kết nối: ' + error.message);
                         });
                     });
                 } else {
                     fbButton.disabled = false;
                     fbButton.textContent = 'Đăng nhập bằng Facebook';
-                    alert('Người dùng đã huỷ đăng nhập.');
+                    console.log('Facebook login cancelled or failed');
+                    alert('Đăng nhập Facebook đã bị hủy hoặc thất bại.');
                 }
             }, {scope: 'email'});
         }

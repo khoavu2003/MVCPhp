@@ -2,6 +2,7 @@
 // Include necessary files
 include_once 'app/config/database.php';
 include_once 'app/models/Genre.php';
+include_once 'app/middleware/AuthMiddleware.php';
 
 class GenreController
 {

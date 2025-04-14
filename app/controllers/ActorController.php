@@ -2,6 +2,7 @@
 require_once 'app/config/database.php';
 require_once 'app/models/Actor.php';
 require_once 'app/models/Movie.php';
+require_once 'app/middleware/AuthMiddleware.php';
 
 class ActorController
 {
