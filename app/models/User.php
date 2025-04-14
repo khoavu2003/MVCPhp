@@ -118,5 +118,16 @@ class User {
 
         return $stmt->execute();
     }
+    public function getUserByEmail($email) {
+        $stmt = $this->conn->prepare("SELECT * FROM " . $this->table_name . " WHERE email = ?");
+        $stmt->execute([$email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    public function createFacebookUser($name, $email, $facebookId) {
+        $stmt = $this->conn->prepare("INSERT INTO " . $this->table_name . " (name, email, facebook_id, role) VALUES (?, ?, ?, ?)");
+        $defaultRole = 'user';
+        return $stmt->execute([$name, $email, $facebookId, $defaultRole]);
+    }
 }
 ?>

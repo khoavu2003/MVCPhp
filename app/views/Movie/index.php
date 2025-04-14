@@ -1,5 +1,4 @@
 <?php
-
 require_once 'app/config/database.php';
 require_once 'app/models/Movie.php';
 require_once 'app/models/Actor.php';
@@ -66,10 +65,14 @@ if (empty($url) || $url === 'index') {
                 <?php include 'app/views/components/featured_today.php'; ?>
                 <?php renderMovieSlider("Trending", $movies); ?>
                 <?php renderMovieSlider("Top Rated", $movies, true); ?>
+                <h2 class="titleh2">Popular Actors</h2>
                 <?php renderActorSlider("Popular Actors", $actors); ?>
                 <?php include 'app/views/components/pagination.php'; ?>
             </div>
         </main>
+
+        <!-- Thêm footer -->
+        <?php include 'app/views/utils/footer.php'; ?>
 
         <script>
             function addToWatchlist(movieId) {

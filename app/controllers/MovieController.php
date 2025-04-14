@@ -212,7 +212,6 @@ class MovieController
         include 'app/views/Movie/edit.php';
     }
 
-
     // Chi tiết movie
     public function detail($movieId)
     {

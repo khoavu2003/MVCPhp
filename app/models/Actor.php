@@ -1,4 +1,5 @@
 <?php
+
 class Actor
 {
     private $conn;
@@ -129,3 +130,4 @@ class Actor
         return $stmt->execute();
     }
 }
+
