@@ -1,0 +1,54 @@
+.banner {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 30px;
+}
+
+.carousel-container {
+    width: 75%;
+    position: relative;
+}
+
+.up-next-container {
+    width: 25%;
+    background-color: #111;
+    color: white;
+    padding: 1rem;
+    border-radius: 10px;
+    min-height: 100%;
+}
+
+.up-next-box img {
+    object-fit: cover;
+    border-radius: 8px;
+    padding-top: 30px;
+}
+
+.play-icon-overlay i {
+    font-size: 1.5rem;
+    color: #fff;
+}
+
+.banner-image {
+    height: 450px;
+    object-fit: cover;
+    width: 100%;
+    border-radius: 15px;
+}
+
+.banner-thumbnail {
+    position: absolute;
+    bottom: 20px;
+    left: 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.banner-thumbnail-img {
+    width: 100px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}

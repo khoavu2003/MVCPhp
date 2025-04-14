@@ -1,0 +1,21 @@
+:root {
+    --primary-color: #f5c518;
+    --dark-bg: #0f0e0e;
+    --light-dark-bg: #1f1f1f;
+    --text-color: #ffffff;
+    --secondary-text: #aaaaaa;
+    --hover-color: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--text-color);
+    line-height: 1.6;
+}

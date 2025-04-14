@@ -1,0 +1,40 @@
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 20px;
+}
+
+.main-content {
+    background-color: #0b0a0a;
+    border-top:  1px solid #ccc;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero {
+        height: 350px;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-buttons {
+        flex-wrap: wrap;
+    }
+
+    .featured-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero {
+        height: 300px;
+    }
+
+    .hero-title {
+        font-size: 1.8rem;
+    }
+}
