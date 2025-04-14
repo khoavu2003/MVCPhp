@@ -3,7 +3,11 @@
 include_once 'app/config/database.php';
 // Include file model User.php
 include_once 'app/models/User.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+
+$dotenv->load();
 class LoginController {
     private $db;
     private $user;
@@ -78,8 +82,8 @@ class LoginController {
             echo json_encode(['success' => false, 'message' => 'Invalid or missing data']);
             return;
         }
-        $appId = '658420980224756';
-        $appSecret = 'c5c29535c6ba954fde3391cbaa9623e2';
+        $appId = $_ENV['FB_APP_ID'];
+        $appSecret = $_ENV['FB_APP_SECRET'];        
         $url = "https://graph.facebook.com/debug_token?input_token={$data['accessToken']}&access_token={$appId}|{$appSecret}";
 
         $response = @file_get_contents($url);
