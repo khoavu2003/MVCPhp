@@ -3,17 +3,16 @@
 include_once 'app/config/database.php';
 // Include file model User.php
 include_once 'app/models/User.php';
-require_once __DIR__ . '/../../vendor/autoload.php';
-
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
-
-$dotenv->load();
+include_once 'vendor/autoload.php';
+use Dotenv\Dotenv;
 class LoginController {
     private $db;
     private $user;
 
     public function __construct() {
         // Kết nối đến cơ sở dữ liệu
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+        $dotenv->load();
         $database = new Database();
         $this->db = $database->getConnection();
         $this->user = new User($this->db);

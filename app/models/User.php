@@ -111,15 +111,5 @@ class User {
         $defaultRole = 'user';
         return $stmt->execute([$name, $email, $facebookId, $defaultRole]);
     }
-    public function createGoogleUser($name, $email, $googleId) {
-        $query = "INSERT INTO users (name, email, google_id, role, created_at) VALUES (:name, :email, :google_id, :role, NOW())";
-        $stmt = $this->conn->prepare($query);
-        $role = 'user'; // Mặc định là user, có thể thay đổi logic
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':google_id', $googleId);
-        $stmt->bindParam(':role', $role);
-        return $stmt->execute();
-    }
 }
 ?>
