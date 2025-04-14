@@ -75,7 +75,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     <div class="access-denied-container">
         <h1>Access Denied</h1>
         <p>You do not have permission to view this page.</p>
-        <a href="/Movie_Project/Movie" class="btn">Go Back to Home</a>
+        <a href="/Movie_Project/" class="btn">Go Back to Home</a>
     </div>
 <?php else: ?>
     <!-- Content for authorized users -->

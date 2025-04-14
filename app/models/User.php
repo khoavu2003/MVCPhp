@@ -100,5 +100,26 @@ class User {
 
         return $stmt->execute();
     }
+    public function getUserByEmail($email) {
+        $stmt = $this->conn->prepare("SELECT * FROM " . $this->table_name . " WHERE email = ?");
+        $stmt->execute([$email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    public function createFacebookUser($name, $email, $facebookId) {
+        $stmt = $this->conn->prepare("INSERT INTO " . $this->table_name . " (name, email, facebook_id, role) VALUES (?, ?, ?, ?)");
+        $defaultRole = 'user';
+        return $stmt->execute([$name, $email, $facebookId, $defaultRole]);
+    }
+    public function createGoogleUser($name, $email, $googleId) {
+        $query = "INSERT INTO users (name, email, google_id, role, created_at) VALUES (:name, :email, :google_id, :role, NOW())";
+        $stmt = $this->conn->prepare($query);
+        $role = 'user'; // Mặc định là user, có thể thay đổi logic
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':google_id', $googleId);
+        $stmt->bindParam(':role', $role);
+        return $stmt->execute();
+    }
 }
 ?>

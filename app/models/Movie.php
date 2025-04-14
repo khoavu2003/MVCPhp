@@ -119,7 +119,7 @@ class Movie
     public function getMoviesWithDetails($limit, $offset)
     {
         $query = "
-        SELECT m.*, 
+        SELECT m.*,
                GROUP_CONCAT(DISTINCT g.name) AS genre_names, 
                GROUP_CONCAT(DISTINCT a.name) AS actor_names 
         FROM Movie m
