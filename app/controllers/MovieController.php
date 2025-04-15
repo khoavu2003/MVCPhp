@@ -325,7 +325,6 @@ class MovieController
         }
     }
 
-    // Tìm kiếm phim
     public function search()
     {
         $query = isset($_GET['query']) ? trim($_GET['query']) : '';
@@ -365,6 +364,15 @@ class MovieController
         $totalMovies = $totalStmt->fetch(PDO::FETCH_ASSOC)['total'];
         $totalPages = ceil($totalMovies / $limit);
 
-        include 'app/views/Movie/index.php';
+        // Lấy danh sách Watchlist của người dùng (nếu đã đăng nhập)
+        $showWatchlist = false;
+        $watchlists = [];
+        if (isset($_SESSION['user_id'])) {
+            $this->watchlist->userId = $_SESSION['user_id'];
+            $watchlists = $this->watchlist->getAll()->fetchAll(PDO::FETCH_ASSOC);
+            $showWatchlist = true;
+        }
+
+        include 'app/views/Movie/search.php';
     }
 }

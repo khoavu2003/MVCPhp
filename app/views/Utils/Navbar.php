@@ -16,7 +16,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
       <div class="container-fluid">
         <a class="navbar-brand" href="/Movie_Project">
-          <img src="path_to_logo/logo.png" alt="IMDb" class="h-8 w-auto">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/IMDB_Logo_2016.svg" alt="IMDb" class="h-8 w-auto">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -41,10 +41,9 @@
 
           <!-- Phần bên phải: Search, Watchlist, và User Info -->
           <div class="d-flex ms-auto align-items-center">
-            <!-- Thanh Search -->
             <form class="d-flex me-3" action="/Movie_Project/Movie/search" method="GET">
-              <input class="form-control me-2" type="search" name="query" placeholder="Search Movies..." aria-label="Search">
-              <button class="btn btn-outline-light" type="submit">Search</button>
+                <input class="form-control me-2" type="search" name="query" placeholder="Search Movies..." aria-label="Search">
+                <button class="btn btn-outline-light" type="submit">Search</button>
             </form>
             <!-- Liên kết Watchlist -->
             <a class="nav-link text-light me-3" href="/Movie_Project/Watchlist">Watchlist</a>

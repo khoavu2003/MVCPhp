@@ -34,13 +34,14 @@
     border-radius: 20px;
     border: 1px solid #555;
     background-color: #222;
-    color: white;
+    color: #ffffff !important; /* Ensure typed text is white, override Bootstrap */
 }
 
 .navbar-wrapper .form-control:focus {
     background-color: #333;
     border-color: #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    color: #ffffff !important; /* Ensure text stays white when focused */
 }
 
 .navbar-wrapper .btn-outline-light {

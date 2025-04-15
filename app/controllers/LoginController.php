@@ -13,6 +13,7 @@ class LoginController {
     public function __construct()
     {
 
+
         // Kết nối đến cơ sở dữ liệu
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
         $dotenv->load();

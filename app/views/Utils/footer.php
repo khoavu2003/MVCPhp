@@ -69,7 +69,6 @@ if (!defined('BASE_URL')) {
 
 .imdb-footer .logo-img {
     width: 100px;
-    filter: brightness(0) invert(1); /* Chuyển logo thành màu trắng để phù hợp nền tối */
 }
 
 .imdb-footer h5 {
