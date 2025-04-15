@@ -27,17 +27,18 @@ class Watchlist
     }
 
     // Lấy Watchlist theo ID
-    function getById() {
+    function getById()
+    {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = :id";
         $stmt = $this->conn->prepare($query);
-    
+
         // Ép kiểu id thành số nguyên
         $this->id = (int) $this->id;
         $stmt->bindParam(":id", $this->id, PDO::PARAM_INT); // Chỉ định kiểu dữ liệu là INT
-    
+
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
         if ($row) {
             $this->name = $row['name'];
             $this->description = $row['description'];
@@ -74,17 +75,34 @@ class Watchlist
     // Lấy danh sách phim trong Watchlist
     function getMovies()
     {
+        // Lấy danh sách phim trong watchlist
         $query = "
-            SELECT m.* 
-            FROM Movie m
-            JOIN WatchlistMovies wm ON m.id = wm.movieId
-            WHERE wm.watchlistId = :watchlistId
-        ";
+        SELECT m.* 
+        FROM Movie m
+        JOIN WatchlistMovies wm ON m.id = wm.movieId
+        WHERE wm.watchlistId = :watchlistId
+    ";
         $stmt = $this->conn->prepare($query);
         $this->id = htmlspecialchars(strip_tags($this->id));
         $stmt->bindParam(":watchlistId", $this->id);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Lấy genres cho từng phim
+        foreach ($movies as &$movie) {
+            $queryGenres = "
+            SELECT g.* 
+            FROM genre g 
+            JOIN moviegenre mg ON g.id = mg.genreId 
+            WHERE mg.movieid = :movieId
+        ";
+            $stmtGenres = $this->conn->prepare($queryGenres);
+            $stmtGenres->bindParam(":movieId", $movie['id']);
+            $stmtGenres->execute();
+            $movie['genres'] = $stmtGenres->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        return $movies;
     }
 
     // Tạo mới Watchlist
@@ -156,4 +174,3 @@ class Watchlist
         return $stmt->execute();
     }
 }
-?>

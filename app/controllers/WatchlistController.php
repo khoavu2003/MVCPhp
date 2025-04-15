@@ -39,11 +39,11 @@ class WatchlistController
         include 'app/views/Watchlist/index.php';
     }
 
-    // Thêm phương thức movies()
+    //  phương thức movies()
     public function movies($watchlistId)
     {
         session_start();
-        
+
         if (!isset($_SESSION['user_id'])) {
             $_SESSION['error'] = 'Please login to view your watchlist.';
             header('Location: /Movie_Project/Login');
@@ -83,22 +83,50 @@ class WatchlistController
         include 'app/views/Watchlist/movies.php';
     }
 
-    // Sửa phương thức addToWatchlist()
     public function addToWatchlist($movieId, $watchlistId = null)
     {
         session_start();
         if (!isset($_SESSION['user_id'])) {
-            $_SESSION['error'] = 'Please login to add to watchlist.';
-            header('Location: /Movie_Project/Login');
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                echo json_encode(['success' => false, 'message' => 'Please login to add to watchlist.']);
+            } else {
+                $_SESSION['error'] = 'Please login to add to watchlist.';
+                header('Location: /Movie_Project/Login');
+            }
             exit;
         }
 
         $userId = $_SESSION['user_id'];
 
-        // Nếu không có watchlistId, lấy hoặc tạo Default Watchlist
-        if (!$watchlistId) {
+        // Nếu là yêu cầu POST, lấy dữ liệu từ body
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $createDefault = isset($data['createDefault']) ? (bool)$data['createDefault'] : false;
+        } else {
+            $createDefault = true; // Mặc định tạo nếu là GET (trường hợp khác)
+        }
+
+        // Nếu không có watchlistId và cần tạo Default Watchlist
+        if (!$watchlistId && $createDefault) {
             $this->watchlist->userId = $userId;
             $watchlistId = $this->watchlist->getOrCreateDefault();
+        } elseif (!$watchlistId && !$createDefault) {
+            // Nếu không có watchlistId và không tạo mặc định, trả về lỗi
+            echo json_encode(['success' => false, 'message' => 'No watchlist selected.']);
+            exit;
+        }
+
+        // Kiểm tra xem watchlist có thuộc về user không
+        $this->watchlist->id = $watchlistId;
+        $watchlist = $this->watchlist->getById();
+        if (!$watchlist || $watchlist['userId'] != $userId) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                echo json_encode(['success' => false, 'message' => 'Invalid watchlist or you do not have permission.']);
+            } else {
+                $_SESSION['error'] = 'Invalid watchlist or you do not have permission.';
+                header('Location: /Movie_Project/Movie');
+            }
+            exit;
         }
 
         // Kiểm tra xem phim đã có trong Watchlist chưa để tránh trùng lặp
@@ -107,8 +135,12 @@ class WatchlistController
         $stmt->bindParam(':movieId', $movieId);
         $stmt->execute();
         if ($stmt->rowCount() > 0) {
-            $_SESSION['error'] = 'Movie is already in this watchlist.';
-            header('Location: /Movie_Project/Movie');
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                echo json_encode(['success' => false, 'message' => 'Movie is already in this watchlist.']);
+            } else {
+                $_SESSION['error'] = 'Movie is already in this watchlist.';
+                header('Location: /Movie_Project/Movie');
+            }
             exit;
         }
 
@@ -116,12 +148,24 @@ class WatchlistController
         $this->watchlistMovies->watchlistId = $watchlistId;
         $this->watchlistMovies->movieId = $movieId;
         if ($this->watchlistMovies->create()) {
-            $_SESSION['success'] = 'Movie added to watchlist successfully.';
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Added to watchlist successfully!',
+                    'watchlistId' => $watchlistId
+                ]);
+            } else {
+                $_SESSION['success'] = 'Movie added to watchlist successfully.';
+                header('Location: /Movie_Project/Watchlist/movies/' . $watchlistId);
+            }
         } else {
-            $_SESSION['error'] = 'Failed to add movie to watchlist.';
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                echo json_encode(['success' => false, 'message' => 'Failed to add movie to watchlist.']);
+            } else {
+                $_SESSION['error'] = 'Failed to add movie to watchlist.';
+                header('Location: /Movie_Project/Movie');
+            }
         }
-
-        header('Location: /Movie_Project/Movie');
         exit;
     }
 
@@ -215,6 +259,22 @@ class WatchlistController
         }
 
         header('Location: /Movie_Project/Watchlist');
+        exit;
+    }
+
+    public function getUserWatchlists()
+    {
+        session_start();
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Please login to view your watchlists.']);
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $this->watchlist->userId = $userId;
+        $watchlists = $this->watchlist->getAll()->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode(['success' => true, 'watchlists' => $watchlists]);
         exit;
     }
 }
