@@ -42,7 +42,7 @@ class GenreController
             // Check if the genre was added successfully
             if ($this->genre->create($data)) {
                 $_SESSION['success'] = 'Genre added successfully';
-                header('Location: /Movie_Project/Genre');
+                header('Location: /Movie_Project/Genre/manage');
                 exit;
             } else {
                 $_SESSION['error'] = 'Error occurred while adding genre';
@@ -63,7 +63,7 @@ class GenreController
 
         if (!$genre) {
             $_SESSION['error'] = 'Genre does not exist.';
-            header('Location: /Movie_Project/Genre');
+            header('Location: /Movie_Project/Genre/manage');
             exit;
         }
 
@@ -77,7 +77,7 @@ class GenreController
             // Check if the genre was successfully updated
             if ($this->genre->update($data)) {
                 $_SESSION['success'] = 'Genre updated successfully';
-                header('Location: /Movie_Project/Genre');
+                header('Location: /Movie_Project/Genre/manage');
                 exit;
             } else {
                 $_SESSION['error'] = 'Error occurred while updating genre';
@@ -95,7 +95,7 @@ class GenreController
         $this->genre->id = $genreId;
         if ($this->genre->delete()) {
             $_SESSION['success'] = 'Genre deleted successfully';
-            header('Location: /Movie_Project/Genre');
+            header('Location: /Movie_Project/Genre/manage');
             exit;
         } else {
             $_SESSION['error'] = 'Error occurred while deleting genre';

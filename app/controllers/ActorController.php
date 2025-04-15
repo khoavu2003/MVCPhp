@@ -64,7 +64,7 @@ class ActorController
             // Check if the data exists, then call the create function to add the actor
             if ($this->actor->create($data)) {
                 $_SESSION['success'] = 'Actor added successfully';
-                header('Location: /Movie_Project/Actor');
+                header('Location: /Movie_Project/Actor/manage');
                 exit;
             } else {
                 $_SESSION['error'] = 'Error occurred while adding actor';
@@ -84,7 +84,7 @@ class ActorController
 
         if (!$actor) {
             $_SESSION['error'] = 'Actor does not exist.';
-            header('Location: /Movie_Project/Actor');
+            header('Location: /Movie_Project/Actor/manage');
             exit;
         }
 
@@ -102,7 +102,7 @@ class ActorController
             // Check if the actor was successfully updated
             if ($this->actor->update($data)) {
                 $_SESSION['success'] = 'Actor updated successfully';
-                header('Location: /Movie_Project/Actor');
+                header('Location: /Movie_Project/Actor/manage');
                 exit;
             } else {
                 $_SESSION['error'] = 'Error occurred while updating actor';
@@ -119,7 +119,7 @@ class ActorController
         $this->actor->id = $actorId;
         if ($this->actor->delete()) {
             $_SESSION['success'] = 'Actor deleted successfully';
-            header('Location: /Movie_Project/Actor');
+            header('Location: /Movie_Project/Actor/manage');
             exit;
         } else {
             $_SESSION['error'] = 'Error occurred while deleting actor';

@@ -29,7 +29,6 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Name</th>
                     <th>Bio</th>
                     <th>Actions</th>
@@ -38,7 +37,6 @@
             <tbody>
                 <?php foreach ($actors as $actor): ?>
                     <tr>
-                        <td><?php echo $actor['id']; ?></td>
                         <td><?php echo $actor['name']; ?></td>
                         <td><?php echo $actor['description']; ?></td>
                         <td>
