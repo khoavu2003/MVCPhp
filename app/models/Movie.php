@@ -313,8 +313,10 @@ class Movie
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row['total_movies'];
     }
-    public function getMoviesByActorId($actorId, $limit = null, $offset = null) {
-        $query = "SELECT m.* FROM Movie m
+
+    public function getMoviesByActorId($actorId, $limit = null, $offset = null)
+    {
+        $query = "SELECT m.* FROM " . $this->table_name . " m
                   JOIN MovieActor ma ON m.id = ma.movieId
                   WHERE ma.actorId = :actorId
                   AND m.releaseYear > 0
