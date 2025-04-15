@@ -7,7 +7,25 @@
     <title>Watchlist - <?php echo htmlspecialchars($watchlist['name']); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="/Movie_Project/public/css/watchlist/watchlist-movies.css" rel="stylesheet"> <!-- Include file CSS mới -->
+    <link href="/Movie_Project/public/css/watchlist/watchlist-movies.css" rel="stylesheet">
+    <style>
+        /* Tùy chỉnh giao diện cho năm phát hành và thể loại */
+        .movie-item .text-muted strong {
+            color: #facc15; /* Màu vàng giống nút Add to Watchlist */
+        }
+        .movie-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+        .movie-item img:hover {
+            transform: scale(1.05);
+        }
+        .movie-item h5:hover {
+            color: #facc15;
+        }
+    </style>
 </head>
 
 <body>
@@ -34,15 +52,29 @@
 
         <?php if (!empty($movies)): ?>
             <?php foreach ($movies as $movie): ?>
-                <div class="row movie-item align-items-center">
+                <div class="row movie-item align-items-center mb-3">
                     <div class="col-md-2">
-                        <img src="<?php echo $movie['poster']; ?>" alt="<?php echo $movie['title']; ?>">
+                        <img src="<?php echo htmlspecialchars($movie['poster']); ?>" 
+                             alt="<?php echo htmlspecialchars($movie['title']); ?>" 
+                             style="cursor: pointer;"
+                             onclick="window.location.href='/Movie_Project/Movie/detail/<?php echo htmlspecialchars($movie['id']); ?>'">
                     </div>
                     <div class="col-md-8">
-                        <h5 class="text-white"><?php echo htmlspecialchars($movie['title']); ?></h5>
+                        <h5 class="text-white" 
+                            style="cursor: pointer;"
+                            onclick="window.location.href='/Movie_Project/Movie/detail/<?php echo htmlspecialchars($movie['id']); ?>'">
+                            <?php echo htmlspecialchars($movie['title']); ?>
+                        </h5>
+                        <p class="text-muted mb-0">
+                            <strong>Năm phát hành:</strong> <?php echo htmlspecialchars($movie['releaseYear'] ?? 'Không rõ'); ?>
+                        </p>
+                        <p class="text-muted mb-0">
+                            <strong>Thể loại:</strong> 
+                            <?php echo !empty($movie['genres']) ? implode(', ', array_map('htmlspecialchars', array_column($movie['genres'], 'name'))) : 'Không có thể loại'; ?>
+                        </p>
                     </div>
                     <div class="col-md-2 text-end">
-                        <a href="/Movie_Project/Watchlist/removeFromWatchlist/<?php echo $watchlist['id']; ?>/<?php echo $movie['id']; ?>"
+                        <a href="/Movie_Project/Watchlist/removeFromWatchlist/<?php echo htmlspecialchars($watchlist['id']); ?>/<?php echo htmlspecialchars($movie['id']); ?>"
                            class="btn btn-outline-danger btn-sm">
                            <i class="bi bi-trash"></i> Remove
                         </a>
@@ -56,18 +88,18 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Tự động ẩn thông báo sau 3 giây
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                setTimeout(() => {
-                    alert.classList.remove('show');
-                    alert.classList.add('fade');
-                }, 3000); // 3000ms = 3 giây
-            });
+<script>
+    // Tự động ẩn thông báo sau 3 giây
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.classList.remove('show');
+                alert.classList.add('fade');
+            }, 3000); // 3000ms = 3 giây
         });
-    </script>
+    });
+</script>
 </body>
 
 </html>
