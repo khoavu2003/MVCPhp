@@ -95,7 +95,7 @@ if (!defined('BASE_URL')) {
         }
     </style>
 </head>
-<body>
+<body class="bg-dark text-light">
     <?php include 'app/views/utils/navbar.php'; ?>
     <div class="container">
         <div class="section-title">

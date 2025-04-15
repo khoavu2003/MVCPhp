@@ -21,6 +21,7 @@ if (!defined('BASE_URL')) {
     <!-- Font Awesome cho các biểu tượng -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+    
         .movie-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
@@ -95,7 +96,8 @@ if (!defined('BASE_URL')) {
         }
     </style>
 </head>
-<body>
+<body class="bg-dark text-light">
+    <!-- Navbar -->
 <?php include 'app/views/utils/navbar.php'; ?>
     <div class="container">
         <div class="section-title">
