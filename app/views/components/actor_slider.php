@@ -1,6 +1,11 @@
 <?php
+if (!defined('BASE_URL')) {
+    define('BASE_URL', '/Movie_Project');
+}
+
 function renderActorSlider($title, $actors) {
     ?>
+    <h2 class="titleh2" style="color: white;"><?php echo htmlspecialchars($title); ?></h2>
     <section class="movie-slider">
         <div class="slider-container">
             <?php 

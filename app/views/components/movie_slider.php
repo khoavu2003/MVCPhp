@@ -4,15 +4,20 @@ if (!defined('BASE_URL')) {
 }
 
 function renderMovieSlider($title, $movies, $sortByRating = false) {
+    $movies = array_slice($movies, 0, 6);
     ?>
+    <div class="section-title">
+        <h2 class="titleh2" style="color: white;"><?php echo htmlspecialchars($title); ?></h2>
+        <a href="<?php echo BASE_URL; ?>/movie/<?php echo $sortByRating ? 'topRated' : 'newMovies'; ?>" class="see-all">See all</a>
+    </div>
     <section class="movie-slider">
         <div class="slider-container">
             <?php 
             if (!empty($movies)):
                 if ($sortByRating) {
                     usort($movies, function($a, $b) {
-                        $ratingA = isset($a['rating']) && $a['rating'] !== '' ? floatval($a['rating']) : 0;
-                        $ratingB = isset($b['rating']) && $b['rating'] !== '' ? floatval($b['rating']) : 0;
+                        $ratingA = isset($a['rating']) && $a['rating'] !== '' && $a['rating'] !== null ? floatval($a['rating']) : 0;
+                        $ratingB = isset($b['rating']) && $b['rating'] !== '' && $b['rating'] !== null ? floatval($b['rating']) : 0;
                         return $ratingB <=> $ratingA;
                     });
                 }
@@ -20,7 +25,7 @@ function renderMovieSlider($title, $movies, $sortByRating = false) {
                     $movieId = isset($movie['id']) ? htmlspecialchars($movie['id']) : '';
                     $movieTitle = isset($movie['title']) ? htmlspecialchars($movie['title']) : 'Untitled';
                     $poster = isset($movie['poster']) ? htmlspecialchars($movie['poster']) : 'https://via.placeholder.com/185x278';
-                    $rating = isset($movie['rating']) && $movie['rating'] !== '' ? htmlspecialchars($movie['rating']) : '0';
+                    $rating = isset($movie['rating']) && $movie['rating'] !== '' && $movie['rating'] !== null ? number_format(floatval($movie['rating']), 1) : '0.0';
                     $releaseYear = isset($movie['releaseYear']) ? htmlspecialchars($movie['releaseYear']) : 'Unknown';
             ?>
             <div class="movie-card">

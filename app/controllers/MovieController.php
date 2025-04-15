@@ -375,4 +375,122 @@ class MovieController
 
         include 'app/views/Movie/search.php';
     }
+    public function newMovies()
+    {
+        $limit = 12;
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $offset = ($page - 1) * $limit;
+
+        $query = "
+            SELECT m.*, 
+                   GROUP_CONCAT(DISTINCT g.name) AS genre_names,
+                   (SELECT AVG(rating) FROM ratings r WHERE r.movieId = m.id) AS rating
+            FROM movie m
+            LEFT JOIN MovieGenre mg ON m.id = mg.movieId
+            LEFT JOIN Genre g ON mg.genreId = g.id
+            GROUP BY m.id
+            ORDER BY m.createdAt DESC
+            LIMIT :limit OFFSET :offset";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $totalStmt = $this->db->prepare("SELECT COUNT(*) as total FROM movie");
+        $totalStmt->execute();
+        $totalMovies = $totalStmt->fetch(PDO::FETCH_ASSOC)['total'];
+        $totalPages = ceil($totalMovies / $limit);
+
+        $showWatchlist = false;
+        $watchlists = [];
+        if (isset($_SESSION['user_id'])) {
+            $this->watchlist->userId = $_SESSION['user_id'];
+            $watchlists = $this->watchlist->getAll()->fetchAll(PDO::FETCH_ASSOC);
+            $showWatchlist = true;
+        }
+
+        include 'app/views/Movie/new.php';
+    }
+
+    // Liệt kê phim được xếp hạng cao (theo rating DESC)
+    public function topRated()
+    {
+        $limit = 12;
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $offset = ($page - 1) * $limit;
+
+        $query = "
+            SELECT m.*, 
+                   GROUP_CONCAT(DISTINCT g.name) AS genre_names,
+                   (SELECT AVG(rating) FROM ratings r WHERE r.movieId = m.id) AS rating
+            FROM movie m
+            LEFT JOIN MovieGenre mg ON m.id = mg.movieId
+            LEFT JOIN Genre g ON mg.genreId = g.id
+            GROUP BY m.id
+            ORDER BY rating DESC, m.createdAt DESC
+            LIMIT :limit OFFSET :offset";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $totalStmt = $this->db->prepare("SELECT COUNT(*) as total FROM movie");
+        $totalStmt->execute();
+        $totalMovies = $totalStmt->fetch(PDO::FETCH_ASSOC)['total'];
+        $totalPages = ceil($totalMovies / $limit);
+
+        $showWatchlist = false;
+        $watchlists = [];
+        if (isset($_SESSION['user_id'])) {
+            $this->watchlist->userId = $_SESSION['user_id'];
+            $watchlists = $this->watchlist->getAll()->fetchAll(PDO::FETCH_ASSOC);
+            $showWatchlist = true;
+        }
+
+        include 'app/views/Movie/top-rated.php';
+    }
+
+    // Liệt kê phim đã ra mắt (theo theatricalReleaseDate DESC)
+    public function released()
+    {
+        $limit = 12;
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $offset = ($page - 1) * $limit;
+
+        $query = "
+            SELECT m.*, 
+                   GROUP_CONCAT(DISTINCT g.name) AS genre_names,
+                   (SELECT AVG(rating) FROM ratings r WHERE r.movieId = m.id) AS rating
+            FROM movie m
+            LEFT JOIN MovieGenre mg ON m.id = mg.movieId
+            LEFT JOIN Genre g ON mg.genreId = g.id
+            WHERE m.theatricalReleaseDate IS NOT NULL
+            AND m.theatricalReleaseDate <= CURDATE()
+            GROUP BY m.id
+            ORDER BY m.theatricalReleaseDate DESC
+            LIMIT :limit OFFSET :offset";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $totalStmt = $this->db->prepare("SELECT COUNT(*) as total FROM movie WHERE theatricalReleaseDate IS NOT NULL AND theatricalReleaseDate <= CURDATE()");
+        $totalStmt->execute();
+        $totalMovies = $totalStmt->fetch(PDO::FETCH_ASSOC)['total'];
+        $totalPages = ceil($totalMovies / $limit);
+
+        $showWatchlist = false;
+        $watchlists = [];
+        if (isset($_SESSION['user_id'])) {
+            $this->watchlist->userId = $_SESSION['user_id'];
+            $watchlists = $this->watchlist->getAll()->fetchAll(PDO::FETCH_ASSOC);
+            $showWatchlist = true;
+        }
+
+        include 'app/views/Movie/released.php';
+    }
+    
 }

@@ -1,21 +1,11 @@
 <?php
 // app/views/actor/detail.php
 
-// Giả lập dữ liệu ảnh (cần có trong cơ sở dữ liệu hoặc logic thực tế)
-$photos = [
-    'https://via.placeholder.com/150',
-    'https://via.placeholder.com/150',
-    'https://via.placeholder.com/150',
-    'https://via.placeholder.com/150',
-    'https://via.placeholder.com/150',
-    'https://via.placeholder.com/150',
-];
-
 // Giả lập dữ liệu cho "More to Explore"
 $relatedItems = [
-    ['title' => 'Những Ngôi Sao Đang Lên', 'image' => 'https://via.placeholder.com/100'],
-    ['title' => 'Lilo & Stitch', 'image' => 'https://via.placeholder.com/100'],
-    ['title' => 'Legend of the Guardians', 'image' => 'https://via.placeholder.com/100'],
+    ['title' => 'Piratas Del Caribe', 'image' => 'https://th.bing.com/th/id/OIP.gF--XR-CwFzNmC-zfsJD1QHaKu?w=208&h=300&c=7&r=0&o=5&dpr=1.3&pid=1.7'],
+    ['title' => 'Blue Beetle Movie', 'image' => 'https://th.bing.com/th/id/OIP.2_wH2qmbdU02QwQufqklsAHaNK?w=187&h=333&c=7&r=0&o=5&dpr=1.3&pid=1.7'],
+    ['title' => 'Black Adam', 'image' => 'https://th.bing.com/th/id/R.9df5b5fa360bc7db74ae421bc7219585?rik=aFKy7rniM34ZGQ&riu=http%3a%2f%2fwww.impawards.com%2f2022%2fposters%2fblack_adam_ver10_xxlg.jpg&ehk=VgB%2bT%2bUWSmVQrBgOTCsIpcQp1oIaevElWf60FhMci4M%3d&risl=&pid=ImgRaw&r=0'],
 ];
 ?>
 
@@ -48,21 +38,6 @@ $relatedItems = [
                         <p><strong>Mô Tả:</strong> <?php echo isset($actor['description']) && $actor['description'] !== '' ? htmlspecialchars($actor['description']) : 'Không có mô tả.'; ?></p>
                     </div>
                 </div>
-
-                <!-- Phần Photos -->
-                <section class="actor-photos">
-                    <div class="section-title">
-                        <h2>Ảnh <span class="photo-count"><?php echo count($photos); ?></span></h2>
-                        <a href="#" class="see-all">Xem tất cả <i class="fas fa-chevron-right"></i></a>
-                    </div>
-                    <div class="photos-container">
-                        <?php foreach ($photos as $photo): ?>
-                            <div class="photo-item">
-                                <img src="<?php echo htmlspecialchars($photo); ?>" alt="Ảnh của diễn viên">
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </section>
 
                 <!-- Phần Known For -->
                 <section class="known-for">

@@ -27,9 +27,17 @@ if (empty($url) || $url === 'index') {
     $totalMovies = $movie->getTotalMovies();
     $totalPages = ceil($totalMovies / $limit);
 
-    // Get movie list
+    // Get movie list for sliders
     $stmt = $movie->getMoviesWithDetails($limit, $offset);
     $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Get newly added movies for banner and sliders (limit to 6)
+    $stmt = $movie->getNewlyAddedMovies(6);
+    $newMovies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Get movies for Featured Today (limit to 6)
+    $stmt = $movie->getMoviesByReleaseDate(4);
+    $recentMovies = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Featured movie
     $featuredMovie = !empty($movies) ? $movies[0] : null;
@@ -63,11 +71,9 @@ if (empty($url) || $url === 'index') {
             <div class="container">
                 <?php include 'app/views/components/banner.php'; ?>
                 <?php include 'app/views/components/featured_today.php'; ?>
-                <?php renderMovieSlider("Trending", $movies); ?>
+                <?php renderMovieSlider("New Movies", $newMovies); ?>
                 <?php renderMovieSlider("Top Rated", $movies, true); ?>
-                <h2 class="titleh2">Popular Actors</h2>
                 <?php renderActorSlider("Popular Actors", $actors); ?>
-                <?php include 'app/views/components/pagination.php'; ?>
             </div>
         </main>
 
@@ -86,3 +92,4 @@ if (empty($url) || $url === 'index') {
     // Let the Router handle other requests
     App\Core\Router::handleRequest();
 }
+?>

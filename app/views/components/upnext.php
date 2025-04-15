@@ -2,21 +2,24 @@
 if (!defined('BASE_URL')) {
     define('BASE_URL', '/Movie_Project');
 }
+
+// Nếu $newMovies không được định nghĩa, sử dụng mảng rỗng
+$newMovies = isset($newMovies) ? $newMovies : [];
 ?>
 
 <div class="up-next-box">
     <h5 class="text-light mb-3">Up next</h5>
     <?php 
     $upNextCount = 0;
-    foreach ($movies as $index => $movie): 
-        if ($index === 0) continue; 
-        if ($upNextCount >= 3) break;
+    foreach ($newMovies as $index => $movie): 
+        if ($index === 0) continue; // Bỏ qua phim đầu tiên (giống logic cũ)
+        if ($upNextCount >= 3) break; // Giới hạn 3 phim
         $upNextCount++;
         $movieId = isset($movie['id']) ? htmlspecialchars($movie['id']) : '';
         $movieTitle = isset($movie['title']) ? htmlspecialchars($movie['title']) : 'Untitled';
         $poster = isset($movie['poster']) ? htmlspecialchars($movie['poster']) : 'https://via.placeholder.com/60x90';
         $director = isset($movie['director']) ? htmlspecialchars($movie['director']) : 'Unknown';
-        $releaseYear = isset($movie['release_year']) ? htmlspecialchars($movie['release_year']) : '2025';
+        $releaseYear = isset($movie['releaseYear']) ? htmlspecialchars($movie['releaseYear']) : 'Unknown';
     ?>
         <div class="d-flex mb-3 align-items-center pt-3">
             <div class="me-2 position-relative">
@@ -48,5 +51,7 @@ if (!defined('BASE_URL')) {
             </div>
         </div>
     <?php endforeach; ?>
-    <a href="#" class="text-info">Xem thêm <i class="fas fa-chevron-right"></i></a>
+    <?php if ($upNextCount === 0): ?>
+        <p class="text-secondary">No new movies available.</p>
+    <?php endif; ?>
 </div>
